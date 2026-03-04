@@ -188,6 +188,22 @@ PORTRAITS = {
   ╚════════╝
 [/]""",
 
+    "argonian_veezara": r"""[#228b22]
+    🌿 ⚔️ 🌿
+     \  |  /
+      \ | /
+     (🦎▽🦎)
+   ╔══════════╗
+   ║ VEEZARA  ║
+   ╠══════════╣
+   ║GatedDelta║
+   ║ Net 3B   ║
+   ╠══════════╣
+   ║SequMixer ║
+   ║ NATIVE   ║
+   ╚══════════╝
+[/]""",
+
     # === MoE/Khajiit Races ===
     "khajiit": r"""[#deb887]
      /\_/\
@@ -262,6 +278,7 @@ MINI_PORTRAITS = {
     "falmer_warmonger": "[#4a4a4a]⚔️ ╔W╗[/]",
     "argonian": "[#228b22]🦎 ╔🜄╗[/]",
     "argonian_shadowscale": "[#2f4f4f]🗡️ ╔S╗[/]",
+    "argonian_veezara": "[#228b22]🌊 ╔V╗[/]",
     "khajiit": "[#deb887]🐱 ╔K╗[/]",
     "khajiit_mane": "[#f4a460]👑 ╔M╗[/]",
     "bosmer": "[#6b8e23]🌲 ╔B╗[/]",

@@ -15,6 +15,7 @@ from textual.containers import Horizontal, Vertical, Center, ScrollableContainer
 from textual.binding import Binding
 
 from ..widgets.parchment import DragonBorder
+from ..config import SequenceModelType
 from ..generator import generate_model_code, generate_full_package
 
 
@@ -203,10 +204,12 @@ class SummaryScreen(Screen):
                     with Horizontal(classes="summary-row"):
                         yield Static("Sequence Model:", classes="summary-label")
                         seq_type = config.sequence_model.name
-                        if config.is_mamba:
+                        if config.sequence_model == SequenceModelType.GATED_DELTANET:
+                            seq_type = f"[#228b22]{seq_type}[/] (Native SequenceMixer)"
+                        elif config.is_mamba:
                             seq_type = f"[#b8860b]{seq_type}[/] (State Space)"
                         elif config.is_hybrid:
-                            seq_type = f"[#708090]{seq_type}[/] (Attention + FLA)"
+                            seq_type = f"[#708090]{seq_type}[/] (Attn + GatedDeltaNet)"
                         else:
                             seq_type = f"[#c9a959]{seq_type}[/]"
                         yield Static(seq_type, classes="summary-value", markup=True)
@@ -247,8 +250,28 @@ class SummaryScreen(Screen):
                             yield Static("Load Balancing:", classes="summary-label")
                             yield Static("Enabled" if config.moe_load_balancing else "Disabled", classes="summary-value")
 
+                    # GatedDeltaNet section if applicable
+                    if config.sequence_model == SequenceModelType.GATED_DELTANET:
+                        yield Static("[#5a4a32]─── GatedDeltaNet (SequenceMixer) ───[/]", classes="section-divider", markup=True)
+
+                        with Horizontal(classes="summary-row"):
+                            yield Static("API:", classes="summary-label")
+                            yield Static("[#228b22]Native olmo-core SequenceMixer[/]", classes="summary-value", markup=True)
+
+                        with Horizontal(classes="summary-row"):
+                            yield Static("Value Expansion:", classes="summary-label")
+                            yield Static(f"{config.gdn_expand_v}x", classes="summary-value")
+
+                        with Horizontal(classes="summary-row"):
+                            yield Static("Neg Eigenvalues:", classes="summary-label")
+                            yield Static("Allowed" if config.gdn_allow_neg_eigval else "Disabled", classes="summary-value")
+
+                        with Horizontal(classes="summary-row"):
+                            yield Static("Conv Size:", classes="summary-label")
+                            yield Static(str(config.gdn_conv_size), classes="summary-value")
+
                     # Mamba section if applicable
-                    if config.is_mamba:
+                    elif config.is_mamba:
                         yield Static("[#5a4a32]─── Automaton Core ───[/]", classes="section-divider", markup=True)
 
                         with Horizontal(classes="summary-row"):
@@ -292,7 +315,10 @@ class SummaryScreen(Screen):
                     yield Button("[Q] Quit", id="btn-quit")
 
                 yield Static("", id="generation-status")
-                yield Static('"Your creation awaits, Dragonborn. OLMo-core stands ready."', id="dramatic-message")
+                yield Static(
+                    '"Your creation awaits, Dragonborn. OLMo-core v2.4.0 and the SequenceMixer API stand ready."',
+                    id="dramatic-message",
+                )
 
         yield Footer()
 

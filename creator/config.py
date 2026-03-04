@@ -196,6 +196,13 @@ class ModelConfig:
     mamba_d_conv: int = 4               # Conv kernel size
     mamba_expand: int = 2               # Expansion factor
 
+    # === GatedDeltaNet Native Config (The Hist's Wisdom) ===
+    # These map to olmo-core's GatedDeltaNetConfig (SequenceMixer API)
+    gdn_expand_v: float = 2.0          # Value expansion ratio
+    gdn_allow_neg_eigval: bool = True   # Allow negative eigenvalues in recurrence
+    gdn_conv_size: int = 4              # Causal 1D convolution kernel size
+    gdn_n_v_heads: Optional[int] = None # Separate value head count (Grouped Value Attn)
+
     @property
     def head_dim(self) -> int:
         """Dimension per attention head."""

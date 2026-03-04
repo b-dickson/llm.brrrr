@@ -1,5 +1,6 @@
 """
 Parchment - Aged parchment-style container widget.
+Enhanced with deeper atmospheric tones.
 """
 
 from textual.containers import Container
@@ -11,14 +12,14 @@ class Parchment(Container):
 
     DEFAULT_CSS = """
     Parchment {
-        background: #2a1f14;
+        background: #231b13;
         border: tall #5a4a32;
         padding: 1 2;
         margin: 1;
     }
 
     Parchment:focus-within {
-        border: tall #6a5a42;
+        border: tall #8b7355;
     }
 
     Parchment > .parchment-title {
@@ -51,7 +52,7 @@ class DragonBorder(Container):
 
     DEFAULT_CSS = """
     DragonBorder {
-        background: #2a1f14;
+        background: #231b13;
         border: heavy #5a4a32;
         border-title-color: #c9a959;
         border-title-style: bold;

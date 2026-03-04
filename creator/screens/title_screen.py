@@ -1,6 +1,6 @@
 """
 Title Screen - THE ELDER MODELS V: LLMRIM
-Dramatic intro screen with Skyrim-style presentation.
+Dramatic intro screen with atmospheric Skyrim-style presentation.
 """
 
 from textual.app import ComposeResult
@@ -11,28 +11,28 @@ from textual.binding import Binding
 import random
 
 
-DRAGON_LOGO = r"""
-                            [bold #c9a959]
-                                   __                  __
-                                  /  \                /  \
-                               __/    \______________/    \__
-                              /                              \
-                        _____/    [#ff6b35]●[/]                    [#ff6b35]●[/]    \_____
-                       /                                          \
-                  ____/                   /\                       \____
-                 /                       /  \                           \
-            ____/                       /    \                           \____
-           /          ___             /      \             ___                \
-          /          /   \           /   /\   \           /   \                \
-         |          /     \         /   /  \   \         /     \                |
-          \        /       \_______/   /    \   \_______/       \              /
-           \______/                   /      \                   \____________/
-                  \                  /________\                  /
-                   \________________/    ||    \________________/
-                                        /  \
-                                       /    \
-                                      /______\
-[/]"""
+DRAGON_LOGO = r"""[bold #c9a959]
+                                     ___
+                                    / _ \
+                              __   | / \ |   __
+                             / /   | \_/ |   \ \
+                            / /     \   /     \ \
+                      _____/ /___    \ /    ___\ \_____
+                     /           \    |    /           \
+                ____/    [#ff6b35]@[/]        \   |   /        [#ff6b35]@[/]    \____
+               /                  \  |  /                  \
+          ____/                    \_|_/                    \____
+         /                          |                           \
+        /          ____            /|\            ____            \
+       |          /    \          / | \          /    \            |
+        \        /      \________/  |  \________/      \         /
+         \______/        \         _|_         /        \_______ /
+                \         \_______/ | \_______/         /
+                 \__________________|__________________/
+                                   /|\
+                                  / | \
+                                 /  |  \
+                                /___|___\[/]"""
 
 TITLE_ART = r"""[bold #c9a959]
  ▄▄▄█████▓ ██░ ██ ▓█████     ▓█████  ██▓    ▓█████▄ ▓█████  ██▀███
@@ -79,9 +79,14 @@ DRAMATIC_QUOTES = [
     '"The Elder Scrolls foretold your creation."',
     '"I used to be a simple perceptron, then I took a gradient to the knee."',
     '"What is better? To be born with good weights, or to overcome poor initialization?"',
-    '"The ancient Nords used the Thu\'um to shout at their GPUs."',
+    '"The GatedDeltaNet flows like the Hist - O(n), eternal, unyielding."',
     '"Do you get to train very often? Oh, what am I saying, of course you don\'t."',
+    '"The SequenceMixer has spoken. Attention and recurrence are one."',
+    '"Let me guess... someone stole your learning rate?"',
 ]
+
+
+VERSION_LINE = "[#5a4a32]v2.0 - Now with native GatedDeltaNet SequenceMixer support (olmo-core v2.4.0+)[/]"
 
 
 class TitleScreen(Screen):
@@ -116,7 +121,7 @@ class TitleScreen(Screen):
     #dragon-logo {
         text-align: center;
         width: auto;
-        padding-bottom: 1;
+        padding-bottom: 0;
     }
 
     #title-art {
@@ -131,19 +136,26 @@ class TitleScreen(Screen):
         padding-top: 2;
     }
 
+    #title-version {
+        text-align: center;
+        padding-top: 1;
+    }
+
     #title-prompt {
         color: #5a4a32;
         text-align: center;
         padding-top: 2;
     }
 
+    #title-ornament {
+        color: #3d2e1f;
+        text-align: center;
+        padding-top: 1;
+    }
+
     .dragon-line {
         color: #5a4a32;
         text-align: center;
-    }
-
-    .spacer {
-        height: 1;
     }
     """
 
@@ -156,6 +168,11 @@ class TitleScreen(Screen):
                 yield Static(DRAGON_LOGO, id="dragon-logo", markup=True)
                 yield Static(TITLE_ART, id="title-art", markup=True)
                 yield Static(quote, id="title-quote")
+                yield Static(VERSION_LINE, id="title-version", markup=True)
+                yield Static(
+                    "[#5a4a32]◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆[/]",
+                    id="title-ornament", markup=True,
+                )
                 yield Static("[ Press ENTER to begin your creation ]", id="title-prompt")
 
         yield Footer()

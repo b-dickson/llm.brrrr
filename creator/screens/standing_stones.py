@@ -213,6 +213,7 @@ class StandingStonesScreen(Screen):
                                 yield RadioButton("Torch SDPA", value=config.attention_backend == AttentionBackend.TORCH, id="backend-torch")
                                 yield RadioButton("Flash 2", value=config.attention_backend == AttentionBackend.FLASH_2, id="backend-flash2")
                                 yield RadioButton("Flash 3", value=config.attention_backend == AttentionBackend.FLASH_3, id="backend-flash3")
+                                yield RadioButton("Flash 4", value=config.attention_backend == AttentionBackend.FLASH_4, id="backend-flash4")
                                 yield RadioButton("TE", value=config.attention_backend == AttentionBackend.TRANSFORMER_ENGINE, id="backend-te")
 
                 # Mage Stone - Regularization
@@ -334,6 +335,8 @@ class StandingStonesScreen(Screen):
                 config.attention_backend = AttentionBackend.FLASH_2
             elif pressed_id == "backend-flash3":
                 config.attention_backend = AttentionBackend.FLASH_3
+            elif pressed_id == "backend-flash4":
+                config.attention_backend = AttentionBackend.FLASH_4
             elif pressed_id == "backend-te":
                 config.attention_backend = AttentionBackend.TRANSFORMER_ENGINE
 

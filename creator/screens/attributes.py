@@ -1,13 +1,14 @@
 """
 Attributes Screen - Customize Your Build
 Core stat customization with sliders and architecture choices.
+Now with native GatedDeltaNet SequenceMixer configuration.
 
 "I used to be an adventurer like you, then I took a gradient to the knee."
 """
 
 from textual.app import ComposeResult
 from textual.screen import Screen
-from textual.widgets import Static, Footer, RadioButton, RadioSet, Label, Collapsible
+from textual.widgets import Static, Footer, RadioButton, RadioSet, Label, Collapsible, Checkbox
 from textual.containers import Horizontal, Vertical, Container, ScrollableContainer
 from textual.binding import Binding
 
@@ -37,16 +38,6 @@ ATTRIBUTES_HEADER = r"""[bold #c9a959]
     ╚═══════════════════════════════════════════════════════════════════╝
 [/]
 [#7a6e5a]                    ━━━ Forge Your Architecture ━━━[/]"""
-
-
-STAT_ICONS = {
-    "n_embd": "💎",
-    "n_layers": "📚",
-    "n_heads": "👁️",
-    "n_kv_heads": "🔑",
-    "seq_length": "📜",
-    "vocab_size": "📖",
-}
 
 
 class AttributesScreen(Screen):
@@ -119,7 +110,7 @@ class AttributesScreen(Screen):
 
     #param-display {
         width: 100%;
-        background: #2a1f14;
+        background: #231b13;
         border: tall #5a4a32;
         padding: 1 2;
         margin: 1 2;
@@ -171,7 +162,7 @@ class AttributesScreen(Screen):
     }
 
     Collapsible {
-        background: #2a1f14;
+        background: #231b13;
         border: tall #5a4a32;
         padding: 0;
         margin: 1;
@@ -179,7 +170,7 @@ class AttributesScreen(Screen):
 
     CollapsibleTitle {
         color: #c9a959;
-        background: #2a1f14;
+        background: #231b13;
         padding: 0 1;
     }
 
@@ -199,10 +190,14 @@ class AttributesScreen(Screen):
         padding: 1;
     }
 
+    .gdn-section {
+        padding: 1;
+    }
+
     #mini-sheet-bar {
         width: 100%;
         dock: bottom;
-        background: #2a1f14;
+        background: #231b13;
         border-top: heavy #5a4a32;
         padding: 0 2;
         height: 3;
@@ -220,7 +215,10 @@ class AttributesScreen(Screen):
         race_info = self.app.get_race_info()
 
         yield Static(ATTRIBUTES_HEADER, id="attr-header", markup=True)
-        yield Static(f"[#8b7355]Race: {race_info['display_name']} ({race_info['model_name']})[/]", id="attr-subtitle", markup=True)
+        yield Static(
+            f"[#8b7355]Race: {race_info['display_name']} ({race_info['model_name']})[/]",
+            id="attr-subtitle", markup=True,
+        )
 
         with Horizontal(id="attr-content-wrapper"):
             with ScrollableContainer(id="attr-scroll"):
@@ -230,56 +228,39 @@ class AttributesScreen(Screen):
                         with DragonBorder(title="Core Attributes"):
                             yield StatSlider(
                                 "Embedding Dimension",
-                                min_val=64,
-                                max_val=16384,
-                                initial=config.n_embd,
-                                step=64,
-                                big_step=256,
+                                min_val=64, max_val=16384,
+                                initial=config.n_embd, step=64, big_step=256,
                                 id="slider-n_embd",
                             )
                             yield StatSlider(
                                 "Hidden Layers",
-                                min_val=1,
-                                max_val=128,
-                                initial=config.n_layers,
-                                step=1,
-                                big_step=4,
+                                min_val=1, max_val=128,
+                                initial=config.n_layers, step=1, big_step=4,
                                 id="slider-n_layers",
                             )
                             yield StatSlider(
                                 "Attention Heads",
-                                min_val=1,
-                                max_val=128,
-                                initial=config.n_heads,
-                                step=1,
-                                big_step=4,
+                                min_val=1, max_val=128,
+                                initial=config.n_heads, step=1, big_step=4,
                                 id="slider-n_heads",
                             )
                             yield StatSlider(
                                 "KV Heads (GQA)",
-                                min_val=1,
-                                max_val=128,
+                                min_val=1, max_val=128,
                                 initial=config.n_kv_heads or config.n_heads,
-                                step=1,
-                                big_step=4,
+                                step=1, big_step=4,
                                 id="slider-n_kv_heads",
                             )
                             yield StatSlider(
                                 "Context Length",
-                                min_val=128,
-                                max_val=131072,
-                                initial=config.seq_length,
-                                step=128,
-                                big_step=1024,
+                                min_val=128, max_val=131072,
+                                initial=config.seq_length, step=128, big_step=1024,
                                 id="slider-seq_length",
                             )
                             yield StatSlider(
                                 "Vocabulary Size",
-                                min_val=1000,
-                                max_val=256000,
-                                initial=config.vocab_size,
-                                step=1000,
-                                big_step=10000,
+                                min_val=1000, max_val=256000,
+                                initial=config.vocab_size, step=1000, big_step=10000,
                                 id="slider-vocab_size",
                             )
 
@@ -288,65 +269,84 @@ class AttributesScreen(Screen):
                             with Vertical(classes="moe-section"):
                                 yield StatSlider(
                                     "Number of Experts",
-                                    min_val=2,
-                                    max_val=64,
-                                    initial=config.num_experts,
-                                    step=1,
-                                    big_step=4,
+                                    min_val=2, max_val=64,
+                                    initial=config.num_experts, step=1, big_step=4,
                                     id="slider-num_experts",
                                 )
                                 yield StatSlider(
-                                    "Experts per Token (top-k)",
-                                    min_val=1,
-                                    max_val=8,
-                                    initial=config.experts_per_token,
-                                    step=1,
+                                    "Experts per Token",
+                                    min_val=1, max_val=8,
+                                    initial=config.experts_per_token, step=1,
                                     id="slider-experts_per_token",
                                 )
 
                         # Mamba settings (collapsible)
-                        with Collapsible(title="⚙️ Automaton Core (Mamba)", collapsed=not config.is_mamba):
+                        is_mamba_type = config.sequence_model in (
+                            SequenceModelType.MAMBA, SequenceModelType.MAMBA2
+                        )
+                        with Collapsible(title="⚙️ Automaton Core (Mamba)", collapsed=not is_mamba_type):
                             with Vertical(classes="mamba-section"):
                                 yield StatSlider(
                                     "State Dimension",
-                                    min_val=8,
-                                    max_val=64,
-                                    initial=config.mamba_d_state,
-                                    step=8,
+                                    min_val=8, max_val=64,
+                                    initial=config.mamba_d_state, step=8,
                                     id="slider-mamba_d_state",
                                 )
                                 yield StatSlider(
                                     "Conv Kernel Size",
-                                    min_val=2,
-                                    max_val=8,
-                                    initial=config.mamba_d_conv,
-                                    step=1,
+                                    min_val=2, max_val=8,
+                                    initial=config.mamba_d_conv, step=1,
                                     id="slider-mamba_d_conv",
                                 )
                                 yield StatSlider(
                                     "Expansion Factor",
-                                    min_val=1,
-                                    max_val=4,
-                                    initial=config.mamba_expand,
-                                    step=1,
+                                    min_val=1, max_val=4,
+                                    initial=config.mamba_expand, step=1,
                                     id="slider-mamba_expand",
+                                )
+
+                        # GatedDeltaNet settings (collapsible) - NEW
+                        is_gdn = config.sequence_model in (
+                            SequenceModelType.GATED_DELTANET, SequenceModelType.HYBRID
+                        )
+                        with Collapsible(title="🌊 Hist Connection (GatedDeltaNet)", collapsed=not is_gdn):
+                            with Vertical(classes="gdn-section"):
+                                yield Static(
+                                    "[#228b22]Native SequenceMixer - olmo-core v2.4.0+[/]",
+                                    markup=True,
+                                )
+                                yield StatSlider(
+                                    "Value Expansion",
+                                    min_val=1, max_val=4,
+                                    initial=int(config.gdn_expand_v),
+                                    step=1,
+                                    id="slider-gdn_expand_v",
+                                )
+                                yield StatSlider(
+                                    "Conv Size",
+                                    min_val=2, max_val=8,
+                                    initial=config.gdn_conv_size, step=1,
+                                    id="slider-gdn_conv_size",
+                                )
+                                yield Checkbox(
+                                    "Allow Negative Eigenvalues",
+                                    config.gdn_allow_neg_eigval,
+                                    id="check-gdn-neg-eigval",
                                 )
 
                     # Right column: Architecture choices
                     with Vertical(id="arch-column"):
                         with DragonBorder(title="Soul Type"):
-                            # Sequence Model Type
                             with Horizontal(classes="arch-group"):
                                 yield Label("Architecture:", classes="arch-label")
                                 with RadioSet(id="radio-sequence"):
                                     yield RadioButton("Transformer", value=config.sequence_model == SequenceModelType.TRANSFORMER, id="seq-transformer")
                                     yield RadioButton("Mamba", value=config.sequence_model == SequenceModelType.MAMBA, id="seq-mamba")
                                     yield RadioButton("Mamba2", value=config.sequence_model == SequenceModelType.MAMBA2, id="seq-mamba2")
-                                    yield RadioButton("DeltaNet", value=config.sequence_model == SequenceModelType.GATED_DELTANET, id="seq-deltanet")
+                                    yield RadioButton("GatedDeltaNet", value=config.sequence_model == SequenceModelType.GATED_DELTANET, id="seq-deltanet")
                                     yield RadioButton("Hybrid", value=config.sequence_model == SequenceModelType.HYBRID, id="seq-hybrid")
 
                         with DragonBorder(title="Combat Style"):
-                            # Attention type (only for transformer/hybrid)
                             with Horizontal(classes="arch-group"):
                                 yield Label("Attention:", classes="arch-label")
                                 with RadioSet(id="radio-attention"):
@@ -354,14 +354,12 @@ class AttributesScreen(Screen):
                                     yield RadioButton("Fused", value=config.attention_type == AttentionType.FUSED, id="attn-fused")
                                     yield RadioButton("Normalized", value=config.attention_type == AttentionType.NORMALIZED, id="attn-normalized")
 
-                            # MLP type
                             with Horizontal(classes="arch-group"):
                                 yield Label("MLP:", classes="arch-label")
                                 with RadioSet(id="radio-mlp"):
                                     yield RadioButton("Standard", value=config.mlp_type == MLPType.STANDARD, id="mlp-standard")
                                     yield RadioButton("SwiGLU", value=config.mlp_type == MLPType.SWIGLU, id="mlp-swiglu")
 
-                            # Block type
                             with Horizontal(classes="arch-group"):
                                 yield Label("Block:", classes="arch-label")
                                 with RadioSet(id="radio-block"):
@@ -370,7 +368,6 @@ class AttributesScreen(Screen):
                                     yield RadioButton("nGPT", value=config.block_type == BlockType.NORMALIZED, id="block-ngpt")
                                     yield RadioButton("MoE", value=config.block_type == BlockType.MOE, id="block-moe")
 
-                            # Norm type
                             with Horizontal(classes="arch-group"):
                                 yield Label("Norm:", classes="arch-label")
                                 with RadioSet(id="radio-norm"):
@@ -379,7 +376,6 @@ class AttributesScreen(Screen):
                                     yield RadioButton("FusedRMS", value=config.norm_type == NormType.FUSED_RMS_NORM, id="norm-fused")
                                     yield RadioButton("L2Norm", value=config.norm_type == NormType.L2_NORM, id="norm-l2")
 
-                            # Position encoding
                             with Horizontal(classes="arch-group"):
                                 yield Label("Position:", classes="arch-label")
                                 with RadioSet(id="radio-position"):
@@ -431,6 +427,10 @@ class AttributesScreen(Screen):
             config.mamba_d_conv = value
         elif slider_id == "slider-mamba_expand":
             config.mamba_expand = value
+        elif slider_id == "slider-gdn_expand_v":
+            config.gdn_expand_v = float(value)
+        elif slider_id == "slider-gdn_conv_size":
+            config.gdn_conv_size = value
 
         self._update_param_display()
 
@@ -504,18 +504,25 @@ class AttributesScreen(Screen):
 
         self._update_param_display()
 
+    def on_checkbox_changed(self, event) -> None:
+        """Handle checkbox changes."""
+        config = self.app.config
+        checkbox_id = event.checkbox.id
+        value = event.value
+
+        if checkbox_id == "check-gdn-neg-eigval":
+            config.gdn_allow_neg_eigval = value
+
     def _update_param_display(self) -> None:
         """Update the parameter count display and character sheet."""
         config = self.app.config
 
-        # Update the character sheet sidebar
         try:
             char_sheet = self.query_one("#char-sheet", CharacterSheet)
             char_sheet.update_config(config)
         except Exception:
             pass
 
-        # Update the mini sheet
         try:
             mini_sheet = self.query_one("#mini-sheet", MiniSheet)
             mini_sheet.update_config(config)
@@ -524,7 +531,6 @@ class AttributesScreen(Screen):
 
     def action_continue(self) -> None:
         """Continue to standing stones screen."""
-        # Validate config first
         issues = self.app.config.validate()
         if issues:
             self.notify("\n".join(issues), title="Configuration Issues", severity="warning")
@@ -538,6 +544,5 @@ class AttributesScreen(Screen):
     def action_reset(self) -> None:
         """Reset to preset values."""
         self.app.load_preset(self.app.selected_race)
-        # Refresh the screen
         self.app.pop_screen()
         self.app.goto_attributes()

@@ -6,7 +6,7 @@ from textual.widgets import Static
 from textual.containers import Vertical, Horizontal
 from textual.app import ComposeResult
 
-from ..config import ModelConfig, SequenceModelType
+from ..config import ModelConfig, SequenceModelType, PositionEncoding
 
 
 class StatBar(Static):
@@ -170,7 +170,10 @@ class CharacterSheet(Vertical):
         # Architecture type badge
         arch_class = "arch-transformer"
         arch_text = "⚡ TRANSFORMER"
-        if config.is_mamba:
+        if config.sequence_model == SequenceModelType.GATED_DELTANET:
+            arch_class = "arch-hybrid"
+            arch_text = "🌊 GATED DELTANET"
+        elif config.is_mamba:
             arch_class = "arch-mamba"
             arch_text = "⚙️ MAMBA/SSM"
         elif config.is_hybrid:
@@ -215,8 +218,21 @@ class CharacterSheet(Vertical):
                 yield Static("Experts:", classes="sheet-label")
                 yield Static(f"{config.num_experts} (top-{config.experts_per_token})", classes="sheet-value")
 
+        # GatedDeltaNet details if applicable
+        if config.sequence_model == SequenceModelType.GATED_DELTANET:
+            yield Static("─" * 30, classes="sheet-divider")
+            with Horizontal(classes="sheet-row"):
+                yield Static("Expand V:", classes="sheet-label")
+                yield Static(f"{config.gdn_expand_v}x", classes="sheet-value")
+            with Horizontal(classes="sheet-row"):
+                yield Static("Conv Size:", classes="sheet-label")
+                yield Static(str(config.gdn_conv_size), classes="sheet-value")
+            with Horizontal(classes="sheet-row"):
+                yield Static("Mixer:", classes="sheet-label")
+                yield Static("[#228b22]Native[/]", classes="sheet-value", markup=True)
+
         # Mamba details if applicable
-        if config.is_mamba:
+        elif config.is_mamba:
             yield Static("─" * 30, classes="sheet-divider")
             with Horizontal(classes="sheet-row"):
                 yield Static("State Dim:", classes="sheet-label")
@@ -261,7 +277,9 @@ class MiniSheet(Static):
         config = self._config
 
         # Architecture icon
-        if config.is_mamba:
+        if config.sequence_model == SequenceModelType.GATED_DELTANET:
+            arch = "[#228b22]🌊[/]"
+        elif config.is_mamba:
             arch = "[#b8860b]⚙️[/]"
         elif config.is_hybrid:
             arch = "[#708090]🔀[/]"

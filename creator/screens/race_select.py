@@ -1,6 +1,7 @@
 """
 Race Selection Screen - Choose Your Race
-Select from preset model architectures including Transformer, Mamba, MoE, and Hybrid.
+Select from preset model architectures including Transformer, Mamba, MoE,
+GatedDeltaNet (native SequenceMixer), and Hybrid.
 
 "Skyrim belongs to the Nords... and so does efficient inference!"
 """
@@ -15,100 +16,43 @@ from ..presets import PRESETS, list_categories
 from ..widgets.character_portrait import CharacterPortrait, get_portrait
 
 
-# ASCII art icons for each race
-RACE_ICONS = {
-    # Transformers (Men)
-    "nord": r"""[#a0c4e8]
-    ⚔️ ╔═══╗
-      ║ N ║
-      ╚═══╝[/]""",
-
-    "imperial": r"""[#c9a959]
-    👑 ╔═══╗
-      ║ I ║
-      ╚═══╝[/]""",
-
-    "altmer": r"""[#e8d9a0]
-    ✨ ╔═══╗
-      ║ A ║
-      ╚═══╝[/]""",
-
-    "dragonborn": r"""[#ff6b35]
-    🐉 ╔═══╗
-      ║ D ║
-      ╚═══╝[/]""",
-
-    # Divine (LLaMA)
-    "daedra": r"""[#8b0000]
-    🔥 ╔═══╗
-      ║ Δ ║
-      ╚═══╝[/]""",
-
-    "aedra": r"""[#f0e6d2]
-    ⭐ ╔═══╗
-      ║ Ω ║
-      ╚═══╝[/]""",
-
-    # Dwemer (Mamba)
-    "dwemer": r"""[#b8860b]
-    ⚙️ ╔═══╗
-      ║ ⛭ ║
-      ╚═══╝[/]""",
-
-    "dwemer_centurion": r"""[#cd853f]
-    🤖 ╔═══╗
-      ║ C ║
-      ╚═══╝[/]""",
-
-    "dwemer_numidium": r"""[#daa520]
-    🏛️ ╔═══╗
-      ║ Ⓝ ║
-      ╚═══╝[/]""",
-
-    # Falmer (Hybrid)
-    "falmer": r"""[#708090]
-    🦇 ╔═══╗
-      ║ F ║
-      ╚═══╝[/]""",
-
-    "falmer_warmonger": r"""[#4a4a4a]
-    ⚔️ ╔═══╗
-      ║ W ║
-      ╚═══╝[/]""",
-
-    # Argonian (Linear)
-    "argonian": r"""[#228b22]
-    🦎 ╔═══╗
-      ║ 🜄 ║
-      ╚═══╝[/]""",
-
-    "argonian_shadowscale": r"""[#2f4f4f]
-    🗡️ ╔═══╗
-      ║ S ║
-      ╚═══╝[/]""",
-
-    # Khajiit (MoE)
-    "khajiit": r"""[#deb887]
-    🐱 ╔═══╗
-      ║ K ║
-      ╚═══╝[/]""",
-
-    "khajiit_mane": r"""[#f4a460]
-    👑 ╔═══╗
-      ║ M ║
-      ╚═══╝[/]""",
-
-    # Bosmer (nGPT)
-    "bosmer": r"""[#6b8e23]
-    🌲 ╔═══╗
-      ║ B ║
-      ╚═══╝[/]""",
-
-    # Custom
-    "custom": r"""[#7a6e5a]
-    🔧 ╔═══╗
-      ║ ? ║
-      ╚═══╝[/]""",
+# Category colors and descriptions
+CATEGORY_INFO = {
+    "Transformer": {
+        "color": "#c9a959",
+        "icon": "⚡",
+        "description": "Classic attention-based architectures",
+    },
+    "Mamba": {
+        "color": "#b8860b",
+        "icon": "⚙️",
+        "description": "State space models with O(n) complexity",
+    },
+    "Hybrid": {
+        "color": "#708090",
+        "icon": "🔀",
+        "description": "Alternating attention and GatedDeltaNet layers",
+    },
+    "Linear Attention": {
+        "color": "#228b22",
+        "icon": "🌊",
+        "description": "GatedDeltaNet - native SequenceMixer, O(n) linear attention",
+    },
+    "Mixture of Experts": {
+        "color": "#deb887",
+        "icon": "👥",
+        "description": "Sparse expert routing for efficiency",
+    },
+    "Normalized": {
+        "color": "#6b8e23",
+        "icon": "⚖️",
+        "description": "nGPT-style normalized architectures",
+    },
+    "Custom": {
+        "color": "#7a6e5a",
+        "icon": "🔧",
+        "description": "Build your own architecture",
+    },
 }
 
 
@@ -130,54 +74,14 @@ HEADER_ART = r"""[bold #c9a959]
 [/]"""
 
 
-# Category colors and descriptions
-CATEGORY_INFO = {
-    "Transformer": {
-        "color": "#c9a959",
-        "icon": "⚡",
-        "description": "Classic attention-based architectures",
-    },
-    "Mamba": {
-        "color": "#b8860b",
-        "icon": "⚙️",
-        "description": "State space models with O(n) complexity",
-    },
-    "Hybrid": {
-        "color": "#708090",
-        "icon": "🔀",
-        "description": "Alternating attention and linear layers",
-    },
-    "Linear Attention": {
-        "color": "#228b22",
-        "icon": "🌊",
-        "description": "Efficient linear attention mechanisms",
-    },
-    "Mixture of Experts": {
-        "color": "#deb887",
-        "icon": "👥",
-        "description": "Sparse expert routing for efficiency",
-    },
-    "Normalized": {
-        "color": "#6b8e23",
-        "icon": "⚖️",
-        "description": "nGPT-style normalized architectures",
-    },
-    "Custom": {
-        "color": "#7a6e5a",
-        "icon": "🔧",
-        "description": "Build your own architecture",
-    },
-}
-
-
 class RaceCard(Button):
     """A selectable race card showing model preset info."""
 
     DEFAULT_CSS = """
     RaceCard {
         width: 34;
-        height: 11;
-        background: #2a1f14;
+        height: 9;
+        background: #231b13;
         border: tall #5a4a32;
         padding: 0 1;
         margin: 1;
@@ -185,12 +89,12 @@ class RaceCard(Button):
     }
 
     RaceCard:hover {
-        background: #3d2e1f;
-        border: tall #6a5a42;
+        background: #2a1f14;
+        border: tall #8b7355;
     }
 
     RaceCard:focus {
-        background: #3d2e1f;
+        background: #2a1f14;
         border: double #c9a959;
     }
 
@@ -204,20 +108,22 @@ class RaceCard(Button):
         self.race_key = race_key
         self.race_info = race_info
 
-        # Build the card content with icon
         display_name = race_info["display_name"]
         model_name = race_info["model_name"]
         params = race_info["params"]
-        icon = RACE_ICONS.get(race_key, "")
+        category = race_info.get("category", "Custom")
+        cat_info = CATEGORY_INFO.get(category, CATEGORY_INFO["Custom"])
+        color = cat_info["color"]
 
         # Truncate long model names
-        if len(model_name) > 18:
-            model_name = model_name[:15] + "..."
+        if len(model_name) > 20:
+            model_name = model_name[:17] + "..."
 
-        label = f"""{icon}
-[bold #c9a959]━ {display_name.upper()} ━[/]
+        label = f"""[bold {color}]━━ {display_name.upper()} ━━[/]
 [#8b7355]{model_name}[/]
-[#d4c4a8]{params}[/]"""
+[#d4c4a8]{params}[/]
+[dim #5a4a32]{'─' * 22}[/]
+[{color}]{cat_info['icon']} {category}[/]"""
 
         super().__init__(label, id=f"race-{race_key}")
 
@@ -232,7 +138,8 @@ class RaceSelectScreen(Screen):
         Binding("1", "tab_transformer", "Transformer", show=False),
         Binding("2", "tab_mamba", "Mamba", show=False),
         Binding("3", "tab_hybrid", "Hybrid", show=False),
-        Binding("4", "tab_moe", "MoE", show=False),
+        Binding("4", "tab_linear", "Linear", show=False),
+        Binding("5", "tab_moe", "MoE", show=False),
     ]
 
     DEFAULT_CSS = """
@@ -287,9 +194,9 @@ class RaceSelectScreen(Screen):
     }
 
     #race-info-panel {
-        width: 30;
+        width: 34;
         height: 100%;
-        background: #2a1f14;
+        background: #231b13;
         border-left: heavy #5a4a32;
         padding: 0;
     }
@@ -321,6 +228,12 @@ class RaceSelectScreen(Screen):
         text-align: center;
     }
 
+    #race-lore-model {
+        color: #8b7355;
+        text-align: center;
+        padding-bottom: 1;
+    }
+
     #race-lore-text {
         color: #7a6e5a;
         text-style: italic;
@@ -334,6 +247,7 @@ class RaceSelectScreen(Screen):
     #race-bonuses-label {
         color: #8b7355;
         padding-top: 1;
+        text-style: bold;
     }
 
     .separator {
@@ -351,12 +265,12 @@ class RaceSelectScreen(Screen):
     }
 
     Tabs {
-        background: #2a1f14;
+        background: #231b13;
         dock: top;
     }
 
     Tab {
-        background: #2a1f14;
+        background: #231b13;
         color: #8b7355;
         padding: 1 2;
     }
@@ -400,18 +314,18 @@ class RaceSelectScreen(Screen):
                             for race_key in ["dwemer", "dwemer_centurion", "dwemer_numidium"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
+                # Linear Attention tab (Argonian) - Enhanced with Veezara
+                with TabPane("🌊 GatedDeltaNet", id="tab-linear"):
+                    with ScrollableContainer():
+                        with Grid(id="race-grid", classes="race-grid-3"):
+                            for race_key in ["argonian", "argonian_shadowscale", "argonian_veezara"]:
+                                yield RaceCard(race_key, PRESETS[race_key])
+
                 # Hybrid tab (Falmer)
                 with TabPane("🔀 Hybrid", id="tab-hybrid"):
                     with ScrollableContainer():
                         with Grid(id="race-grid", classes="race-grid-2"):
                             for race_key in ["falmer", "falmer_warmonger"]:
-                                yield RaceCard(race_key, PRESETS[race_key])
-
-                # Linear Attention tab (Argonian)
-                with TabPane("🌊 Linear", id="tab-linear"):
-                    with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-2"):
-                            for race_key in ["argonian", "argonian_shadowscale"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # MoE tab (Khajiit)
@@ -421,8 +335,8 @@ class RaceSelectScreen(Screen):
                             for race_key in ["khajiit", "khajiit_mane"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
-                # Normalized tab (Bosmer)
-                with TabPane("⚖️ nGPT", id="tab-ngpt"):
+                # Normalized + Custom tab
+                with TabPane("⚖️ nGPT/Custom", id="tab-ngpt"):
                     with ScrollableContainer():
                         with Grid(id="race-grid", classes="race-grid-2"):
                             yield RaceCard("bosmer", PRESETS["bosmer"])
@@ -434,8 +348,9 @@ class RaceSelectScreen(Screen):
                     yield Static(get_portrait("nord"), id="race-portrait", markup=True)
                 with Vertical(id="race-lore-panel"):
                     yield Static("", id="race-lore-title")
+                    yield Static("", id="race-lore-model")
                     yield Static("", id="race-lore-text")
-                    yield Static("Racial Bonuses:", id="race-bonuses-label")
+                    yield Static("[#5a4a32]─── Racial Bonuses ───[/]", id="race-bonuses-label", markup=True)
                     yield Static("", id="race-bonuses")
 
         yield Footer()
@@ -455,10 +370,6 @@ class RaceSelectScreen(Screen):
             self.selected_race = event.button.race_key
             self.update_lore_display(self.selected_race)
             self._select_current_race()
-
-    def on_race_card_focus(self, event) -> None:
-        """Update lore when a race card is focused."""
-        pass  # Handled by watch
 
     def watch_focused(self, focused) -> None:
         """Watch for focus changes to update lore display."""
@@ -482,9 +393,13 @@ class RaceSelectScreen(Screen):
         portrait = self.query_one("#race-portrait", Static)
         portrait.update(get_portrait(race_key))
 
-        # Update title
+        # Update title with category color
         title = self.query_one("#race-lore-title", Static)
-        title.update(f"[{cat_info['color']}]{race_info['display_name']}[/]")
+        title.update(f"[bold {cat_info['color']}]{race_info['display_name']}[/]")
+
+        # Update model name
+        model = self.query_one("#race-lore-model", Static)
+        model.update(f"[#8b7355]{race_info['model_name']} ({race_info['params']})[/]")
 
         # Update lore
         lore = self.query_one("#race-lore-text", Static)
@@ -492,7 +407,7 @@ class RaceSelectScreen(Screen):
 
         # Update bonuses
         bonuses = self.query_one("#race-bonuses", Static)
-        bonus_list = "\n".join(f"  [#6b8e23]+[/] {b}" for b in race_info["bonuses"])
+        bonus_list = "\n".join(f"  [{cat_info['color']}]+[/] {b}" for b in race_info["bonuses"])
         bonuses.update(bonus_list)
 
     def action_select_race(self) -> None:
@@ -509,22 +424,22 @@ class RaceSelectScreen(Screen):
         self.app.pop_screen()
 
     def action_tab_transformer(self) -> None:
-        """Switch to transformer tab."""
         tabs = self.query_one(TabbedContent)
         tabs.active = "tab-transformer"
 
     def action_tab_mamba(self) -> None:
-        """Switch to mamba tab."""
         tabs = self.query_one(TabbedContent)
         tabs.active = "tab-mamba"
 
     def action_tab_hybrid(self) -> None:
-        """Switch to hybrid tab."""
         tabs = self.query_one(TabbedContent)
         tabs.active = "tab-hybrid"
 
+    def action_tab_linear(self) -> None:
+        tabs = self.query_one(TabbedContent)
+        tabs.active = "tab-linear"
+
     def action_tab_moe(self) -> None:
-        """Switch to MoE tab."""
         tabs = self.query_one(TabbedContent)
         tabs.active = "tab-moe"
 

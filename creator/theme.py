@@ -1,42 +1,57 @@
 """
 Skyrim Theme - The Colors of Tamriel
 CSS theme for the LLMRIM TUI.
+
+Enhanced with deeper atmosphere, richer gradients, and ornate decorative elements.
 """
 
-# Color palette
+# Color palette - Deeper, richer, more atmospheric
 COLORS = {
+    # Core palette
     "gold": "#c9a959",
     "gold_dark": "#a88932",
     "gold_light": "#e8d9a0",
+    "gold_bright": "#ffd700",
+    # Parchment/leather tones
     "bronze": "#8b7355",
     "leather": "#1a1512",
+    "leather_mid": "#231b13",
     "leather_light": "#2a1f14",
     "parchment": "#3d2e1f",
     "parchment_light": "#4d3e2f",
+    # Text hierarchy
     "text": "#d4c4a8",
     "text_muted": "#7a6e5a",
     "text_bright": "#f0e6d2",
+    "text_dim": "#5a4a32",
+    # Borders
     "border": "#5a4a32",
     "border_light": "#6a5a42",
+    "border_glow": "#8b7355",
+    # Accents
     "danger": "#8b0000",
     "danger_light": "#a52a2a",
     "success": "#2e5a1c",
     "success_light": "#3e7a2c",
     "frost": "#a0c4e8",
     "fire": "#ff6b35",
+    "shadow": "#2f4f4f",
+    "arcane": "#7b68ee",
+    "hist_green": "#228b22",
 }
 
 SKYRIM_CSS = """
 /* ==========================================================================
-   THE ELDER MODELS V: LLMRIM - Skyrim Theme
+   THE ELDER MODELS V: LLMRIM - Enhanced Skyrim Theme
+   Deeper atmosphere, richer gradients, ornate decorative elements
    ========================================================================== */
 
-/* Global Styles */
+/* === Global Styles === */
 Screen {
     background: #1a1512;
 }
 
-/* Title styling */
+/* === Title Styling === */
 .title {
     text-style: bold;
     color: #c9a959;
@@ -48,7 +63,7 @@ Screen {
     text-align: center;
 }
 
-/* Parchment container */
+/* === Parchment Container === */
 .parchment {
     background: #2a1f14;
     border: tall #5a4a32;
@@ -62,16 +77,16 @@ Screen {
     padding-bottom: 1;
 }
 
-/* Dragon border styling */
+/* === Dragon Border === */
 .dragon-border {
     border: heavy #5a4a32;
     border-title-color: #c9a959;
     border-title-style: bold;
-    background: #2a1f14;
+    background: #231b13;
     padding: 1 2;
 }
 
-/* Stat bars */
+/* === Stat Bars === */
 .stat-bar {
     color: #c9a959;
     background: #3d2e1f;
@@ -89,7 +104,7 @@ Screen {
     text-align: right;
 }
 
-/* Buttons */
+/* === Buttons === */
 Button {
     background: #3d2e1f;
     color: #d4c4a8;
@@ -99,7 +114,7 @@ Button {
 Button:hover {
     background: #4d3e2f;
     color: #e8d9a0;
-    border: tall #6a5a42;
+    border: tall #8b7355;
 }
 
 Button:focus {
@@ -112,25 +127,28 @@ Button.-primary {
     background: #5a4a32;
     color: #c9a959;
     border: tall #c9a959;
+    text-style: bold;
 }
 
 Button.-primary:hover {
     background: #6a5a42;
-    color: #e8d9a0;
+    color: #ffd700;
+    border: tall #ffd700;
 }
 
-/* Input fields */
+/* === Input Fields === */
 Input {
-    background: #2a1f14;
+    background: #231b13;
     color: #d4c4a8;
     border: tall #5a4a32;
 }
 
 Input:focus {
     border: tall #c9a959;
+    background: #2a1f14;
 }
 
-/* Labels */
+/* === Labels === */
 Label {
     color: #d4c4a8;
 }
@@ -147,9 +165,9 @@ Label {
     color: #f0e6d2;
 }
 
-/* Selection list */
+/* === Selection List === */
 SelectionList {
-    background: #2a1f14;
+    background: #231b13;
     border: tall #5a4a32;
 }
 
@@ -166,9 +184,9 @@ SelectionList > .selection-list--option-selected {
     color: #c9a959;
 }
 
-/* Option list */
+/* === Option List === */
 OptionList {
-    background: #2a1f14;
+    background: #231b13;
     border: tall #5a4a32;
 }
 
@@ -177,7 +195,7 @@ OptionList > .option-list--option-highlighted {
     color: #c9a959;
 }
 
-/* Radio buttons and checkboxes */
+/* === Radio Buttons & Checkboxes === */
 RadioButton {
     background: transparent;
     color: #d4c4a8;
@@ -189,6 +207,7 @@ RadioButton:focus {
 
 RadioButton.-on {
     color: #c9a959;
+    text-style: bold;
 }
 
 Checkbox {
@@ -202,9 +221,10 @@ Checkbox:focus {
 
 Checkbox.-on {
     color: #c9a959;
+    text-style: bold;
 }
 
-/* Progress bars */
+/* === Progress Bars === */
 ProgressBar {
     color: #c9a959;
     background: #3d2e1f;
@@ -219,18 +239,19 @@ ProgressBar > .bar--complete {
     color: #c9a959;
 }
 
-/* Tabs */
+/* === Tabs === */
 TabbedContent {
     background: #1a1512;
 }
 
 Tabs {
-    background: #2a1f14;
+    background: #231b13;
 }
 
 Tab {
-    background: #2a1f14;
+    background: #231b13;
     color: #7a6e5a;
+    padding: 1 3;
 }
 
 Tab:hover {
@@ -245,13 +266,13 @@ Tab.-active {
 }
 
 TabPane {
-    background: #2a1f14;
+    background: #1a1512;
     padding: 1;
 }
 
-/* Scrollbars */
+/* === Scrollbars === */
 Scrollbar {
-    background: #2a1f14;
+    background: #231b13;
 }
 
 Scrollbar > .scrollbar--bar {
@@ -259,12 +280,12 @@ Scrollbar > .scrollbar--bar {
 }
 
 Scrollbar > .scrollbar--bar:hover {
-    background: #6a5a42;
+    background: #8b7355;
 }
 
-/* Data tables */
+/* === Data Tables === */
 DataTable {
-    background: #2a1f14;
+    background: #231b13;
     border: tall #5a4a32;
 }
 
@@ -279,9 +300,9 @@ DataTable > .datatable--cursor {
     color: #e8d9a0;
 }
 
-/* Footer */
+/* === Footer === */
 Footer {
-    background: #2a1f14;
+    background: #231b13;
     color: #7a6e5a;
 }
 
@@ -294,13 +315,13 @@ Footer > .footer--description {
     color: #d4c4a8;
 }
 
-/* Header */
+/* === Header === */
 Header {
-    background: #2a1f14;
+    background: #231b13;
     color: #c9a959;
 }
 
-/* Containers */
+/* === Containers === */
 Container {
     background: transparent;
 }
@@ -313,22 +334,22 @@ Vertical {
     background: transparent;
 }
 
-/* Static text */
+/* === Static Text === */
 Static {
     background: transparent;
     color: #d4c4a8;
 }
 
-/* Rich text */
+/* === Rich Text === */
 RichLog {
-    background: #2a1f14;
+    background: #231b13;
     border: tall #5a4a32;
     padding: 1;
 }
 
-/* Custom race card */
+/* === Race Card === */
 .race-card {
-    background: #2a1f14;
+    background: #231b13;
     border: tall #5a4a32;
     padding: 1 2;
     margin: 1;
@@ -337,13 +358,13 @@ RichLog {
 }
 
 .race-card:hover {
-    border: tall #6a5a42;
-    background: #3d2e1f;
+    border: tall #8b7355;
+    background: #2a1f14;
 }
 
 .race-card:focus {
-    border: tall #c9a959;
-    background: #3d2e1f;
+    border: double #c9a959;
+    background: #2a1f14;
 }
 
 .race-card-selected {
@@ -372,9 +393,9 @@ RichLog {
     padding-top: 1;
 }
 
-/* Standing stones */
+/* === Standing Stones === */
 .stone-panel {
-    background: #2a1f14;
+    background: #231b13;
     border: heavy #5a4a32;
     padding: 1 2;
     margin: 1;
@@ -399,12 +420,12 @@ RichLog {
 }
 
 .stone-thief {
-    border-title-color: #2e5a1c;
+    border-title-color: #3e7a2c;
 }
 
-/* Summary screen */
+/* === Summary Screen === */
 .summary-box {
-    background: #2a1f14;
+    background: #231b13;
     border: double #c9a959;
     padding: 1 2;
 }
@@ -419,7 +440,7 @@ RichLog {
     text-style: bold;
 }
 
-/* Parameter display */
+/* === Parameter Display === */
 .param-count {
     color: #c9a959;
     text-style: bold;
@@ -434,20 +455,20 @@ RichLog {
     color: #3e7a2c;
 }
 
-/* Lore text */
+/* === Lore Text === */
 .lore-text {
     color: #7a6e5a;
     text-style: italic;
 }
 
-/* Dramatic messages */
+/* === Dramatic Messages === */
 .dramatic {
     color: #c9a959;
     text-style: bold italic;
     text-align: center;
 }
 
-/* Title screen specific */
+/* === Title Screen Specific === */
 #title-logo {
     color: #c9a959;
     text-align: center;
@@ -464,7 +485,7 @@ RichLog {
     text-align: center;
 }
 
-/* Slider widget */
+/* === Slider Widget === */
 .slider-container {
     height: 3;
 }
@@ -484,56 +505,47 @@ RichLog {
     color: #e8d9a0;
     text-style: bold;
 }
+
+/* === Collapsible === */
+Collapsible {
+    background: #231b13;
+    border: tall #5a4a32;
+    padding: 0;
+    margin: 1;
+}
+
+CollapsibleTitle {
+    color: #c9a959;
+    background: #231b13;
+    padding: 0 1;
+}
+
+CollapsibleTitle:hover {
+    background: #3d2e1f;
+}
+
+CollapsibleTitle:focus {
+    background: #3d2e1f;
+    color: #ffd700;
+}
+
+/* === Text Area === */
+TextArea {
+    background: #1a1512;
+    border: tall #5a4a32;
+}
+
+TextArea:focus {
+    border: tall #c9a959;
+}
 """
 
 
-# ASCII art for title screen
-TITLE_ART = r"""
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                                                                              ║
-║     ████████╗██╗  ██╗███████╗    ███████╗██╗     ██████╗ ███████╗██████╗     ║
-║     ╚══██╔══╝██║  ██║██╔════╝    ██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗    ║
-║        ██║   ███████║█████╗      █████╗  ██║     ██║  ██║█████╗  ██████╔╝    ║
-║        ██║   ██╔══██║██╔══╝      ██╔══╝  ██║     ██║  ██║██╔══╝  ██╔══██╗    ║
-║        ██║   ██║  ██║███████╗    ███████╗███████╗██████╔╝███████╗██║  ██║    ║
-║        ╚═╝   ╚═╝  ╚═╝╚══════╝    ╚══════╝╚══════╝╚═════╝ ╚══════╝╚═╝  ╚═╝    ║
-║                                                                              ║
-║                    ███╗   ███╗ ██████╗ ██████╗ ███████╗██╗      ███████╗     ║
-║                    ████╗ ████║██╔═══██╗██╔══██╗██╔════╝██║      ██╔════╝     ║
-║                    ██╔████╔██║██║   ██║██║  ██║█████╗  ██║      ███████╗     ║
-║                    ██║╚██╔╝██║██║   ██║██║  ██║██╔══╝  ██║      ╚════██║     ║
-║                    ██║ ╚═╝ ██║╚██████╔╝██████╔╝███████╗███████╗ ███████║     ║
-║                    ╚═╝     ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝╚══════╝ ╚══════╝     ║
-║                                                                              ║
-║                              ██╗   ██╗                                       ║
-║                              ██║   ██║                                       ║
-║                              ██║   ██║                                       ║
-║                              ╚██╗ ██╔╝                                       ║
-║                               ╚████╔╝                                        ║
-║                                ╚═══╝                                         ║
-║                                                                              ║
-║                         ██╗     ██╗     ███╗   ███╗██████╗ ██╗███╗   ███╗    ║
-║                         ██║     ██║     ████╗ ████║██╔══██╗██║████╗ ████║    ║
-║                         ██║     ██║     ██╔████╔██║██████╔╝██║██╔████╔██║    ║
-║                         ██║     ██║     ██║╚██╔╝██║██╔══██╗██║██║╚██╔╝██║    ║
-║                         ███████╗███████╗██║ ╚═╝ ██║██║  ██║██║██║ ╚═╝ ██║    ║
-║                         ╚══════╝╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝     ╚═╝    ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-"""
+# Ornamental separators
+ORNAMENT_HEAVY = "═══════════════════════════════════════════════════════════"
+ORNAMENT_LIGHT = "───────────────────────────────────────────────────────────"
+ORNAMENT_DOTTED = "- - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+ORNAMENT_DIAMOND = "◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆ ─ ◆"
+ORNAMENT_RUNIC = "᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫ ᛫"
 
-TITLE_ART_SMALL = r"""
-╔════════════════════════════════════════════════════════════╗
-║                                                            ║
-║              T H E   E L D E R   M O D E L S               ║
-║                                                            ║
-║                          ══╦══                             ║
-║                            ║                               ║
-║                            V                               ║
-║                                                            ║
-║                      L L M R I M                           ║
-║                                                            ║
-╚════════════════════════════════════════════════════════════╝
-"""
-
-DRAGON_SEPARATOR = "═══════════════════════════════════════════════════════════"
+DRAGON_SEPARATOR = ORNAMENT_HEAVY

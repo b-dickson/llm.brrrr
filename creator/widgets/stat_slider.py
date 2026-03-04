@@ -133,7 +133,7 @@ class StatSlider(Static, can_focus=True):
         right_arrow = " [#5a4a32]▶[/]" if is_focused else "  "
 
         # Format with fixed widths for alignment
-        return f"[{label_color}]{self.label:<20}[/] {left_arrow}[{bar}]{right_arrow} [{value_color}]{value_str:>8}[/]"
+        return f"[{label_color}]{self.label:<20}[/] {left_arrow}{bar}{right_arrow} [{value_color}]{value_str:>8}[/]"
 
     def action_increment(self) -> None:
         """Increase the value by step."""

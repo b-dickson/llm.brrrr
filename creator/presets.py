@@ -264,6 +264,10 @@ HYBRID_1B = ModelConfig(
     dropout=0.0,
     tie_embeddings=False,
     rope_theta=10000.0,
+    # GatedDeltaNet native params for linear attention layers
+    gdn_expand_v=2.0,
+    gdn_allow_neg_eigval=True,
+    gdn_conv_size=4,
 )
 
 HYBRID_3B = ModelConfig(
@@ -290,6 +294,10 @@ HYBRID_3B = ModelConfig(
     tie_embeddings=False,
     rope_theta=10000.0,
     gradient_checkpointing=True,
+    # GatedDeltaNet native params for linear attention layers
+    gdn_expand_v=2.0,
+    gdn_allow_neg_eigval=True,
+    gdn_conv_size=4,
 )
 
 
@@ -314,6 +322,10 @@ DELTANET_370M = ModelConfig(
     mlp_bias=False,
     dropout=0.0,
     tie_embeddings=False,
+    # GatedDeltaNet native params (olmo-core SequenceMixer API)
+    gdn_expand_v=2.0,
+    gdn_allow_neg_eigval=True,
+    gdn_conv_size=4,
 )
 
 DELTANET_1B = ModelConfig(
@@ -333,6 +345,33 @@ DELTANET_1B = ModelConfig(
     dropout=0.0,
     tie_embeddings=False,
     gradient_checkpointing=True,
+    # GatedDeltaNet native params (olmo-core SequenceMixer API)
+    gdn_expand_v=2.0,
+    gdn_allow_neg_eigval=True,
+    gdn_conv_size=4,
+)
+
+DELTANET_3B = ModelConfig(
+    name="Veezara",
+    race="Argonian",
+    n_embd=3072,
+    n_layers=32,
+    n_heads=48,
+    seq_length=32768,
+    vocab_size=50257,
+    sequence_model=SequenceModelType.GATED_DELTANET,
+    mlp_type=MLPType.SWIGLU,
+    norm_type=NormType.RMS_NORM,
+    position_encoding=PositionEncoding.NONE,
+    mlp_ratio=3.5,
+    mlp_bias=False,
+    dropout=0.0,
+    tie_embeddings=False,
+    gradient_checkpointing=True,
+    # GatedDeltaNet native params
+    gdn_expand_v=2.0,
+    gdn_allow_neg_eigval=True,
+    gdn_conv_size=4,
 )
 
 
@@ -678,6 +717,24 @@ PRESETS = {
             "Shadow Sign (16K context)",
             "Assassination (fast inference)",
             "Dark Brotherhood (stealth processing)",
+        ],
+    },
+    "argonian_veezara": {
+        "config": DELTANET_3B,
+        "display_name": "Veezara",
+        "model_name": "GatedDeltaNet 3B",
+        "params": "~3B",
+        "category": "Linear Attention",
+        "lore": (
+            "Veezara, the last living Shadowscale, channels the full power "
+            "of the Hist through native SequenceMixer architecture. With "
+            "olmo-core's GatedDeltaNetConfig, his recurrent state remains "
+            "constant regardless of sequence length - true immortality."
+        ),
+        "bonuses": [
+            "Hist Immortality (32K context)",
+            "Native SequenceMixer (no FLA wrapper)",
+            "Constant Memory (O(1) recurrent state)",
         ],
     },
 
