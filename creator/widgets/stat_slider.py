@@ -75,65 +75,57 @@ class StatSlider(Static, can_focus=True):
         self.value = max(min_val, min(initial, max_val))
 
     def render(self) -> str:
-        """Render the slider with gradient gold bar visualization."""
-        # Calculate bar fill percentage
+        """Render the slider as a gold-leaf bar with focus indicators."""
         if self.max_val == self.min_val:
             pct = 1.0
         else:
             pct = (self.value - self.min_val) / (self.max_val - self.min_val)
 
         bar_width = 20
-        filled = int(pct * bar_width)
+        filled = int(round(pct * bar_width))
         empty = bar_width - filled
 
-        # Choose bar color based on fill level
+        # A single, intentional gold-leaf gradient: dim gold for sparse fills,
+        # warm gold for the bulk of the bar, and a bright tip when nearly full.
         if self.color_gradient:
-            if pct < 0.25:
-                bar_color = "#6b8e23"  # Green (low)
-                bar_char = "▓"
-            elif pct < 0.5:
-                bar_color = "#c9a959"  # Gold (medium-low)
-                bar_char = "█"
-            elif pct < 0.75:
-                bar_color = "#daa520"  # Darker gold (medium-high)
-                bar_char = "█"
-            elif pct < 0.9:
-                bar_color = "#ff6b35"  # Orange (high)
-                bar_char = "█"
+            if pct < 0.15:
+                bar_color = "#8a6f2c"  # tarnished gold
+            elif pct < 0.45:
+                bar_color = "#c9a959"  # primary gold
+            elif pct < 0.85:
+                bar_color = "#e8d9a0"  # gold leaf
             else:
-                bar_color = "#ff4500"  # Red-orange (very high)
-                bar_char = "█"
+                bar_color = "#ffd266"  # illuminated gold
         else:
             bar_color = "#c9a959"
-            bar_char = "█"
 
-        # Build the bar with gradient effect
-        bar = f"[{bar_color}]{bar_char * filled}[/][#3d2e1f]{'░' * empty}[/]"
+        bar = (
+            f"[{bar_color}]{'█' * filled}[/]"
+            f"[#26200f]{'░' * empty}[/]"
+        )
 
-        # Format value string
         if self.show_pct:
             value_str = f"{int(pct * 100)}%"
+        elif self.value >= 1_000_000:
+            value_str = f"{self.value / 1_000_000:.1f}M{self.suffix}"
+        elif self.value >= 10_000:
+            value_str = f"{self.value / 1_000:.0f}K{self.suffix}"
+        elif self.value >= 1_000:
+            value_str = f"{self.value / 1_000:.1f}K{self.suffix}"
         else:
-            if self.value >= 1_000_000:
-                value_str = f"{self.value / 1_000_000:.1f}M{self.suffix}"
-            elif self.value >= 10_000:
-                value_str = f"{self.value / 1_000:.0f}K{self.suffix}"
-            elif self.value >= 1_000:
-                value_str = f"{self.value / 1_000:.1f}K{self.suffix}"
-            else:
-                value_str = f"{self.value:,}{self.suffix}"
+            value_str = f"{self.value:,}{self.suffix}"
 
-        # Highlight label when focused
         is_focused = self.has_focus
-        label_color = "#c9a959" if is_focused else "#d4c4a8"
-        value_color = "#e8d9a0" if is_focused else "#d4c4a8"
+        label_color = "#ffd266" if is_focused else "#d4c4a8"
+        value_color = "#ffd266" if is_focused else "#a18762"
+        left_arrow = "[#c9a959]◀[/]" if is_focused else " "
+        right_arrow = "[#c9a959]▶[/]" if is_focused else " "
 
-        # Arrow indicators when focused
-        left_arrow = "[#5a4a32]◀[/] " if is_focused else "  "
-        right_arrow = " [#5a4a32]▶[/]" if is_focused else "  "
-
-        # Format with fixed widths for alignment
-        return f"[{label_color}]{self.label:<20}[/] {left_arrow}{bar}{right_arrow} [{value_color}]{value_str:>8}[/]"
+        return (
+            f"[{label_color}]{self.label:<20}[/] "
+            f"{left_arrow} {bar} {right_arrow} "
+            f"[{value_color}]{value_str:>8}[/]"
+        )
 
     def action_increment(self) -> None:
         """Increase the value by step."""

@@ -1,35 +1,75 @@
 # The Elder Models V: LLMRIM
 
-**A Skyrim-esque LLM Architecture Creator with OLMo-core Integration**
+**A Skyrim-themed LLM architecture creator that emits OLMo-core configs.**
 
-*"Fus Ro Brrr... Your training begins."*
+*"Fus Ro Brrr… your training begins."*
 
 ## Overview
 
-LLMRIM is a terminal-based user interface for designing and generating LLM architectures. It features a complete Skyrim-themed character creation experience where model architectures are presented as "races" with unique abilities and bonuses.
+LLMRIM is a terminal user interface for designing transformer (and friends)
+architectures. Eighteen presets are dressed up as "races" with lore, racial
+bonuses, and ASCII portraits. Tweak the dimensions, walk between the standing
+stones, name your creation, and the tool generates a complete OLMo-core
+config + training script package.
 
-Built on the **OLMo-core v2.4.0+ SequenceMixer API** for production-quality implementations including:
-- Standard Transformer architectures (GPT-2, LLaMA-3 style)
-- **GatedDeltaNet** linear attention (native SequenceMixer — no FLA wrapper needed)
-- **Mamba/Mamba2** state space models (via FLA)
-- **Hybrid** architectures (Attention + GatedDeltaNet per-layer mixing)
-- **Mixture of Experts (MoE)** with sophisticated routing
-- **nGPT** normalized transformers
+The TUI is dependency-light: only `textual` is required at runtime — the
+generated code targets **olmo-core ≥ 2.5.0** (the SequenceMixer API), but
+that is an *opt-in* extra you only install if you actually want to train.
 
-## Installation
+Supported architectures (all 18 presets):
+
+- Standard transformers — GPT-2 (Nord/Imperial/Altmer/Dragonborn) and
+  LLaMA-3 (Daedra 8B, Aedra 70B)
+- **GatedDeltaNet** linear attention — native `SequenceMixerConfig`, no FLA
+  wrapper. Constant-size recurrent state, O(n) compute (Argonian, Shadowscale,
+  Veezara)
+- **Hybrid** architectures — alternating softmax attention and GatedDeltaNet
+  blocks via `block_pattern` (Falmer, Warmonger)
+- **Mixture of Experts** — `MoEConfig` with linear router, top-k gating, load
+  balancing loss, and optional shared dense MLP (Khajiit, Mane)
+- **nGPT** normalized transformers — `NormalizedTransformer` with L2 norm,
+  normalized feed-forward, and normalized LM head (Bosmer)
+- A "Mamba/SSM" preset family (Dwemer/Centurion/Numidium) — these emit a
+  GatedDeltaNet config under v2.5.0, since OLMo-core's only native linear
+  recurrent mixer is GDN
+
+## Quick start
 
 ```bash
-# Clone the repository
-cd llm.brrrr
+# 1. Sync the dev environment (this is fast — ~10 dependencies, no torch).
+uv sync
 
-# Install dependencies
-uv pip install textual olmo-core flash-attn fla
-
-# Run the creator
-python -m creator
+# 2. Launch the TUI.
+uv run llmrim
+# (or: uv run python -m creator)
 ```
 
-Requires **olmo-core >= 2.4.0** for native SequenceMixer support.
+That's it. Navigate with the arrow keys, press Enter to advance, Escape to go
+back, and `g`/`f` on the summary screen to generate a config or full package.
+
+Generated files land in `./models/<your-model-name>/`.
+
+### Running the generated configs
+
+The TUI itself does not need olmo-core. To actually *train* a model, install
+the `olmo` extra (which pulls v2.5.0 from GitHub since PyPI is still on
+2.4.0):
+
+```bash
+uv sync --extra olmo
+
+# And, if you want flash attention or the GatedDeltaNet kernels:
+uv sync --extra olmo --extra flash
+```
+
+Then drop into a generated package and launch:
+
+```bash
+cd models/dovahkiin_small
+torchrun --nproc-per-node=8 dovahkiin_small_train.py
+```
+
+Edit `DATA_PATHS` and `GLOBAL_BATCH_SIZE` in the train script first.
 
 ## Races (18 Model Presets)
 
@@ -86,90 +126,129 @@ Requires **olmo-core >= 2.4.0** for native SequenceMixer support.
 4. **Standing Stones** — Training options (Warrior/Mage/Thief blessings)
 5. **Summary** — Review and generate OLMo-core compatible code
 
-## Generated Output
+## Generated output
 
-LLMRIM generates complete OLMo-core configurations using the **SequenceMixer API**:
+LLMRIM emits complete OLMo-core ≥ 2.5.0 configs using the SequenceMixer API.
+A few representative slices (real, lifted from `creator/generator.py`):
+
+### Standard transformer (Daedra / LLaMA-3 8B)
 
 ```python
-# Example: Generated Daedra (LLaMA-3 8B) config
-from olmo_core.nn.transformer import TransformerConfig, TransformerBlockConfig
-from olmo_core.nn.attention import AttentionConfig, AttentionBackend
-from olmo_core.nn.feed_forward import FeedForwardConfig
-from olmo_core.nn.layer_norm import RMSNormConfig
+from olmo_core.config import DType
+from olmo_core.nn.attention import AttentionBackendName, AttentionConfig, AttentionType
+from olmo_core.nn.feed_forward import FeedForwardConfig, FeedForwardType
+from olmo_core.nn.layer_norm import LayerNormConfig, LayerNormType
+from olmo_core.nn.lm_head import LMHeadConfig, LMHeadType
 from olmo_core.nn.rope import RoPEConfig, RoPEType
+from olmo_core.nn.transformer import (
+    TransformerBlockConfig, TransformerBlockType, TransformerConfig, TransformerType,
+)
+
+layer_norm = LayerNormConfig(name=LayerNormType.rms, eps=1e-5, bias=False)
+
+block = TransformerBlockConfig(
+    name=TransformerBlockType.default,
+    sequence_mixer=AttentionConfig(
+        name=AttentionType.default,
+        n_heads=32,
+        n_kv_heads=8,
+        bias=False,
+        rope=RoPEConfig(name=RoPEType.default, theta=500000),
+        backend=AttentionBackendName.flash_2,
+    ),
+    feed_forward=FeedForwardConfig(
+        name=FeedForwardType.default,
+        hidden_size=14336,
+        bias=False,
+    ),
+    layer_norm=layer_norm,
+)
 
 config = TransformerConfig(
-    d_model=4096,
-    n_layers=32,
-    vocab_size=128256,
-    max_seq_len=8192,
-    block=TransformerBlockConfig(
-        sequence_mixer=AttentionConfig(
-            n_heads=32,
-            n_kv_heads=8,
-            head_dim=128,
-            backend=AttentionBackend.flash_2,
-        ),
-        feed_forward=FeedForwardConfig(
-            hidden_size=14336,
-            activation="silu",
-        ),
-        layer_norm=RMSNormConfig(),
-    ),
-    rope=RoPEConfig(
-        type=RoPEType.default,
-        theta=500000.0,
-    ),
+    name=TransformerType.default,
+    d_model=4096, n_layers=32, vocab_size=128256,
+    block=block,
+    lm_head=LMHeadConfig(layer_norm=layer_norm, bias=False),
+    dtype=DType.bfloat16, init_seed=42,
 )
 ```
 
-GatedDeltaNet models generate native SequenceMixer configs:
+### GatedDeltaNet (Veezara / Argonian 3B)
 
 ```python
-# Example: Generated Veezara (GatedDeltaNet 3B) config
-from olmo_core.nn.transformer import TransformerConfig, TransformerBlockConfig
-from olmo_core.nn.gated_deltanet import GatedDeltaNetConfig
-from olmo_core.nn.feed_forward import FeedForwardConfig
-from olmo_core.nn.layer_norm import RMSNormConfig
+from olmo_core.nn.attention.recurrent import GatedDeltaNetConfig
 
-config = TransformerConfig(
-    d_model=3072,
-    n_layers=32,
-    vocab_size=50257,
-    max_seq_len=32768,
-    block=TransformerBlockConfig(
-        sequence_mixer=GatedDeltaNetConfig(
-            n_heads=48,
-            expand_v=2.0,
-            allow_neg_eigval=True,
-            conv_size=4,
-        ),
-        feed_forward=FeedForwardConfig(
-            hidden_size=10752,
-            activation="silu",
-        ),
-        layer_norm=RMSNormConfig(),
+block = TransformerBlockConfig(
+    name=TransformerBlockType.default,
+    sequence_mixer=GatedDeltaNetConfig(
+        n_heads=48,
+        expand_v=2.0,
+        allow_neg_eigval=True,
+        conv_size=4,
     ),
+    feed_forward=FeedForwardConfig(
+        name=FeedForwardType.default,
+        hidden_size=10752,
+        bias=False,
+    ),
+    layer_norm=layer_norm,
 )
 ```
 
-Hybrid architectures use `block_overrides` to assign different SequenceMixers per layer:
+The recurrent state is constant-size (`n_v_heads × head_k_dim × head_v_dim`)
+regardless of sequence length — long contexts cost no extra memory.
+
+### Hybrid (Falmer / Snow-Prince 1B)
 
 ```python
-# Hybrid: alternating Attention + GatedDeltaNet layers
+attention_block = TransformerBlockConfig(
+    name=TransformerBlockType.default,
+    sequence_mixer=AttentionConfig(name=AttentionType.default, n_heads=32, n_kv_heads=8, ...),
+    feed_forward=feed_forward,
+    layer_norm=layer_norm,
+)
+gdn_block = TransformerBlockConfig(
+    name=TransformerBlockType.default,
+    sequence_mixer=GatedDeltaNetConfig(n_heads=32, ...),
+    feed_forward=feed_forward,
+    layer_norm=layer_norm,
+)
+
 config = TransformerConfig(
-    d_model=2048,
-    n_layers=24,
-    block=TransformerBlockConfig(
-        sequence_mixer=AttentionConfig(...),  # default block
+    d_model=2048, n_layers=24, vocab_size=50257,
+    block={"attn": attention_block, "gdn": gdn_block},
+    block_pattern=[
+        "gdn", "attn", "gdn", "attn", "gdn", "attn",
+        "gdn", "attn", "gdn", "attn", "gdn", "attn",
+        "gdn", "attn", "gdn", "attn", "gdn", "attn",
+        "gdn", "attn", "gdn", "attn", "gdn", "attn",
+    ],
+    ...
+)
+```
+
+`block_pattern` is a clean way to interleave block kinds — much simpler than
+the old `block_overrides` dict.
+
+### Mixture of Experts (Khajiit / Ri'saad 8x1B)
+
+```python
+from olmo_core.nn.moe import MoEConfig, MoERouterConfig, MoERouterGatingFunction
+
+block = TransformerBlockConfig(
+    name=TransformerBlockType.moe,
+    sequence_mixer=AttentionConfig(...),
+    feed_forward_moe=MoEConfig(
+        num_experts=8,
+        hidden_size=7168,
+        router=MoERouterConfig(
+            top_k=2,
+            gating_function=MoERouterGatingFunction.softmax,
+        ),
+        lb_loss_weight=0.01,
+        z_loss_weight=0.001,
     ),
-    block_overrides={
-        # Even layers get GatedDeltaNet
-        i: TransformerBlockConfig(
-            sequence_mixer=GatedDeltaNetConfig(...)
-        )
-        for i in range(0, 24, 2)
-    },
+    layer_norm=layer_norm,
 )
 ```
 
@@ -193,88 +272,53 @@ Generate a complete model package with:
 | P | Preview code |
 | Q | Quit |
 
-## OLMo-core Features
+## OLMo-core features covered
 
-This project integrates with OLMo-core v2.4.0+ to provide:
+The generator targets OLMo-core ≥ 2.5.0. It can produce configs that use:
 
-### Sequence Mixers
-- [x] Attention (MHA, GQA support)
-- [x] Fused Attention (Flash-optimized)
-- [x] Normalized Attention (nGPT-style)
-- [x] **GatedDeltaNet** (native SequenceMixer — O(n) linear attention)
-- [x] QK normalization / QK clipping
-
-### Attention Backends
-- [x] PyTorch SDPA
-- [x] Flash Attention 2
-- [x] Flash Attention 3 (H100+)
-- [x] Flash Attention 4 (CUTE)
-- [x] TransformerEngine
-
-### Position Encoding
-- [x] Learned
-- [x] RoPE
-- [x] Fused RoPE
-- [x] No position (for Mamba / GatedDeltaNet)
-
-### RoPE Scaling
-- [x] ABF (Absolute Base Frequency)
-- [x] PI (Position Interpolation)
-- [x] LLaMA-3 stepwise
-- [x] YaRN
-
-### Blocks
-- [x] Pre-norm (LLaMA-style)
-- [x] Reordered norm
-- [x] Peri-norm
-- [x] Normalized (nGPT)
-- [x] MoE variants
-
-### Normalization
-- [x] LayerNorm
-- [x] RMSNorm
-- [x] Fused RMSNorm
-- [x] L2Norm (nGPT)
-
-### MLP
-- [x] Standard (GELU)
-- [x] SwiGLU
-
-### Mixture of Experts
-- [x] Linear router
-- [x] Softmax/Sigmoid gating
-- [x] Load balancing loss
-- [x] Z-loss
-- [x] Shared dense MLP
-
-### Linear Attention
-- [x] **GatedDeltaNet** — native `SequenceMixerConfig` (no FLA wrapper)
-- [x] Mamba (via FLA)
-- [x] Mamba2 (via FLA)
-- [x] Hybrid (Attention + GatedDeltaNet per-layer via `block_overrides`)
-
-### Optimizers
-- [x] AdamW
-- [x] Muon
+| Area | Options |
+|---|---|
+| Sequence mixers | `Attention` (MHA / GQA), `FusedAttention`, `NormalizedAttention`, `GatedDeltaNet` |
+| Attention backends | `torch` (SDPA), `flash_2`, `flash_3`, `flash_4`, `te` (TransformerEngine) |
+| Position encoding | learned, RoPE, fused RoPE, no-pos (for GDN) |
+| RoPE scaling | ABF, PI, LLaMA-3 stepwise, YaRN |
+| Block types | default, reordered-norm, peri-norm, normalized (nGPT), MoE variants |
+| Normalization | LayerNorm, RMSNorm, FusedRMSNorm, L2Norm |
+| MLP | SwiGLU (default), GELU (via standard MLP) |
+| MoE | linear router, softmax/sigmoid gating, load-balancing & z-loss, shared dense MLP |
+| Hybrid | per-layer mixing via `block_pattern` (Attention ⨯ GatedDeltaNet) |
+| Optimizers | AdamW, Muon (the `Muon` reference impl ships in the repo root) |
 
 ## Theme
 
-The entire UI uses a Skyrim-inspired color palette:
-- **Gold** (#c9a959) — Primary accent
-- **Bronze** (#8b7355) — Secondary text
-- **Leather** (#1a1512) — Dark background
-- **Fire** (#ff6b35) — Warrior Stone
-- **Frost** (#a0c4e8) — Mage Stone
-- **Shadow** (#3e7a2c) — Thief Stone
-- **Hist Green** (#228b22) — GatedDeltaNet / Argonian accents
+A weathered-parchment palette: leather backgrounds, gold leaf accents, and a
+single shot of bronze for secondary text. The standing-stone screen adds three
+restrained elemental hues (fire / frost / forest) only on the stone borders.
+
+| Token | Hex | Used for |
+|---|---|---|
+| `gold`         | `#c9a959` | primary accent |
+| `gold_bright`  | `#ffd266` | focus, hover, active |
+| `bronze`       | `#8b7355` | secondary text, ornament |
+| `leather_deep` | `#15100a` | screen background |
+| `leather`      | `#1c160e` | cards, panels |
+| `ink`          | `#d4c4a8` | body text |
+| `fire`         | `#ff6b35` | Warrior Stone |
+| `frost`        | `#a0c4e8` | Mage Stone |
+| `forest`       | `#3e7a2c` | Thief Stone |
+| `hist`         | `#228b22` | GatedDeltaNet accents |
 
 ## Credits
 
 Built with:
-- [Textual](https://textual.textualize.io/) — TUI framework
-- [OLMo-core](https://github.com/allenai/OLMo-core) — LLM training framework (v2.4.0+ SequenceMixer API)
-- [flash-attention](https://github.com/Dao-AILab/flash-attention) — Efficient attention
-- [fla](https://github.com/sustcsonglin/flash-linear-attention) — Linear attention (Mamba/Mamba2 wrapper)
+
+- [Textual](https://textual.textualize.io/) — the TUI framework that makes any
+  of this readable.
+- [OLMo-core](https://github.com/allenai/OLMo-core) — the actual LLM training
+  framework whose API we generate against.
+- [flash-attention](https://github.com/Dao-AILab/flash-attention) and
+  [flash-linear-attention](https://github.com/fla-org/flash-linear-attention) —
+  optional fast kernels referenced from generated training scripts.
 
 ---
 
