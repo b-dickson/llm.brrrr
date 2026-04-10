@@ -1,19 +1,18 @@
 """Custom widgets for LLMRIM."""
 
-from .stat_slider import StatSlider, CompactStatSlider
-from .parchment import Parchment, DragonBorder
-from .character_portrait import CharacterPortrait, get_portrait, get_mini_portrait
+from .character_portrait import CharacterPortrait, get_mini_portrait, get_portrait
 from .character_sheet import CharacterSheet, MiniSheet, StatBar
+from .parchment import DragonBorder
+from .stat_slider import CompactStatSlider, StatSlider
 
 __all__ = [
-    "StatSlider",
-    "CompactStatSlider",
-    "Parchment",
-    "DragonBorder",
     "CharacterPortrait",
     "CharacterSheet",
+    "CompactStatSlider",
+    "DragonBorder",
     "MiniSheet",
     "StatBar",
-    "get_portrait",
+    "StatSlider",
     "get_mini_portrait",
+    "get_portrait",
 ]

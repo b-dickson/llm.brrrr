@@ -1,0 +1,70 @@
+[project]
+name = "llm-brrrr"
+version = "2.5.0"
+description = "The Elder Models V: LLMRIM — a Skyrim-themed LLM architecture creator that emits OLMo-core configs."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "billy" }]
+keywords = ["tui", "llm", "olmo-core", "transformer", "gated-deltanet", "skyrim"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Terminals",
+]
+
+# The TUI itself only depends on textual — it generates *code* targeting
+# olmo-core, but does not need olmo-core installed at runtime. Install
+# olmo-core separately if you want to actually run the generated configs.
+dependencies = [
+    "textual>=0.85,<10",
+]
+
+[project.optional-dependencies]
+# Convenience extras for users who want to actually *run* the configs that
+# LLMRIM emits. The TUI itself does not need any of these — `uv sync` only
+# installs the core deps (textual + a handful of transitive packages).
+#
+# The emitted configs target the v2.5.0 SequenceMixer API
+# (TransformerBlockConfig.sequence_mixer, native GatedDeltaNetConfig). PyPI
+# only ships up to 2.4.0 right now, so the olmo extra installs the v2.5.0
+# tag straight from GitHub:
+#
+#     uv sync --extra olmo
+#
+# That pulls torch + cuda toolchain and is slow — only opt in when you
+# actually want to train.
+olmo = [
+    "ai2-olmo-core @ git+https://github.com/allenai/OLMo-core.git@v2.5.0",
+]
+flash = [
+    "flash-attn>=2.0.0",
+    "flash-linear-attention>=0.2.0",
+]
+
+[project.scripts]
+llmrim = "creator.app:main"
+
+[project.urls]
+Homepage = "https://github.com/billy/llm.brrrr"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["creator"]
+
+[tool.hatch.metadata]
+allow-direct-references = true

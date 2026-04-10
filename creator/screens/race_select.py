@@ -57,21 +57,14 @@ CATEGORY_INFO = {
 
 
 HEADER_ART = r"""[bold #c9a959]
-╔══════════════════════════════════════════════════════════════════════════════╗
-║  ▄████▄   ██░ ██  ▒█████   ▒█████    ██████ ▓█████    ▓██   ██▓ ▒█████       ║
-║ ▒██▀ ▀█  ▓██░ ██▒▒██▒  ██▒▒██▒  ██▒▒██    ▒ ▓█   ▀     ▒██  ██▒▒██▒  ██▒     ║
-║ ▒▓█    ▄ ▒██▀▀██░▒██░  ██▒▒██░  ██▒░ ▓██▄   ▒███        ▒██ ██░▒██░  ██▒     ║
-║ ▒▓▓▄ ▄██▒░▓█ ░██ ▒██   ██░▒██   ██░  ▒   ██▒▒▓█  ▄      ░ ▐██▓░▒██   ██░     ║
-║ ▒ ▓███▀ ░░▓█▒░██▓░ ████▓▒░░ ████▓▒░▒██████▒▒░▒████▒     ░ ██▒▓░░ ████▓▒░     ║
-║ ░ ░▒ ▒  ░ ▒ ░░▒░▒░ ▒░▒░▒░ ░ ▒░▒░▒░ ▒ ▒▓▒ ▒ ░░░ ▒░ ░      ██▒▒▒ ░ ▒░▒░▒░      ║
-║                        ██▀███   ▄▄▄       ▄████▄  ▓█████                      ║
-║                       ▓██ ▒ ██▒▒████▄    ▒██▀ ▀█  ▓█   ▀                      ║
-║                       ▓██ ░▄█ ▒▒██  ▀█▄  ▒▓█    ▄ ▒███                        ║
-║                       ▒██▀▀█▄  ░██▄▄▄▄██ ▒▓▓▄ ▄██▒▒▓█  ▄                      ║
-║                       ░██▓ ▒██▒ ▓█   ▓██▒▒ ▓███▀ ░░▒████▒                     ║
-║                       ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░░ ░▒ ▒  ░░░ ▒░ ░                     ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-[/]"""
+   ╔════════════════════════════════════════════════════════════════════════════╗
+   ║                                                                            ║
+   ║      ◆  C H O O S E    Y O U R    R A C E  ◆                               ║
+   ║                                                                            ║
+   ║      [#8b7355]The architecture of your soul determines your fate.[/#8b7355]                ║
+   ║                                                                            ║
+   ╚════════════════════════════════════════════════════════════════════════════╝[/]
+[#7a6e5a]                       ━━━ Each race carries its own racial bonus ━━━[/]"""
 
 
 class RaceCard(Button):
@@ -79,28 +72,29 @@ class RaceCard(Button):
 
     DEFAULT_CSS = """
     RaceCard {
-        width: 34;
+        width: 32;
         height: 9;
-        background: #231b13;
+        background: #1c160e;
         border: tall #5a4a32;
         padding: 0 1;
-        margin: 1;
-        content-align: center top;
+        margin: 0 1;
+        content-align: center middle;
     }
 
     RaceCard:hover {
-        background: #2a1f14;
+        background: #26200f;
         border: tall #8b7355;
     }
 
     RaceCard:focus {
-        background: #2a1f14;
+        background: #322a17;
         border: double #c9a959;
+        text-style: bold;
     }
 
     RaceCard.-selected {
-        border: double #c9a959;
-        background: #3d2e1f;
+        border: double #ffd266;
+        background: #4a3a1a;
     }
     """
 
@@ -115,15 +109,17 @@ class RaceCard(Button):
         cat_info = CATEGORY_INFO.get(category, CATEGORY_INFO["Custom"])
         color = cat_info["color"]
 
-        # Truncate long model names
-        if len(model_name) > 20:
-            model_name = model_name[:17] + "..."
+        # Truncate long model names so two-column cards never overflow.
+        if len(model_name) > 22:
+            model_name = model_name[:19] + "…"
 
-        label = f"""[bold {color}]━━ {display_name.upper()} ━━[/]
-[#8b7355]{model_name}[/]
-[#d4c4a8]{params}[/]
-[dim #5a4a32]{'─' * 22}[/]
-[{color}]{cat_info['icon']} {category}[/]"""
+        label = (
+            f"[bold {color}]◆ {display_name.upper()} ◆[/]\n"
+            f"[#8b7355]{model_name}[/]\n"
+            f"[#f4e8c8 bold]{params}[/]\n"
+            f"[#3d2e1f]{'─' * 24}[/]\n"
+            f"[{color}]{cat_info['icon']}  {category}[/]"
+        )
 
         super().__init__(label, id=f"race-{race_key}")
 
@@ -140,11 +136,12 @@ class RaceSelectScreen(Screen):
         Binding("3", "tab_hybrid", "Hybrid", show=False),
         Binding("4", "tab_linear", "Linear", show=False),
         Binding("5", "tab_moe", "MoE", show=False),
+        Binding("6", "tab_ngpt", "nGPT", show=False),
     ]
 
     DEFAULT_CSS = """
     RaceSelectScreen {
-        background: #1a1512;
+        background: #15100a;
         overflow: hidden;
     }
 
@@ -165,7 +162,7 @@ class RaceSelectScreen(Screen):
     }
 
     TabbedContent {
-        background: #1a1512;
+        background: #15100a;
     }
 
     TabPane {
@@ -173,15 +170,14 @@ class RaceSelectScreen(Screen):
     }
 
     ContentSwitcher {
-        background: #1a1512;
+        background: #15100a;
     }
 
-    #race-grid {
+    .race-grid {
         width: 100%;
         height: auto;
         align: center top;
-        grid-size: 4;
-        grid-gutter: 1;
+        grid-gutter: 1 1;
         padding: 1 2;
     }
 
@@ -194,9 +190,9 @@ class RaceSelectScreen(Screen):
     }
 
     #race-info-panel {
-        width: 34;
+        width: 38;
         height: 100%;
-        background: #231b13;
+        background: #1c160e;
         border-left: heavy #5a4a32;
         padding: 0;
     }
@@ -204,7 +200,7 @@ class RaceSelectScreen(Screen):
     #race-portrait-container {
         width: 100%;
         height: auto;
-        padding: 0;
+        padding: 1 0 0 0;
         align: center top;
     }
 
@@ -217,15 +213,16 @@ class RaceSelectScreen(Screen):
 
     #race-lore-panel {
         width: 100%;
-        height: auto;
-        padding: 1;
+        height: 1fr;
+        padding: 1 2;
         border-top: heavy #5a4a32;
     }
 
     #race-lore-title {
-        color: #c9a959;
+        color: #ffd266;
         text-style: bold;
         text-align: center;
+        padding-bottom: 0;
     }
 
     #race-lore-model {
@@ -235,7 +232,7 @@ class RaceSelectScreen(Screen):
     }
 
     #race-lore-text {
-        color: #7a6e5a;
+        color: #a18762;
         text-style: italic;
         padding: 1 0;
     }
@@ -245,8 +242,9 @@ class RaceSelectScreen(Screen):
     }
 
     #race-bonuses-label {
-        color: #8b7355;
+        color: #c9a959;
         padding-top: 1;
+        text-align: center;
         text-style: bold;
     }
 
@@ -265,28 +263,29 @@ class RaceSelectScreen(Screen):
     }
 
     Tabs {
-        background: #231b13;
+        background: #1c160e;
         dock: top;
     }
 
     Tab {
-        background: #231b13;
+        background: #1c160e;
         color: #8b7355;
         padding: 1 2;
     }
 
     Tab:hover {
-        background: #3d2e1f;
+        background: #322a17;
+        color: #d4c4a8;
     }
 
     Tab.-active {
-        background: #3d2e1f;
-        color: #c9a959;
+        background: #322a17;
+        color: #ffd266;
         text-style: bold;
     }
 
     TabPane > ScrollableContainer {
-        background: #1a1512;
+        background: #15100a;
     }
     """
 
@@ -303,42 +302,47 @@ class RaceSelectScreen(Screen):
                 # Transformer tab (Men, Elves, Divine)
                 with TabPane("⚡ Transformer", id="tab-transformer"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid"):
-                            for race_key in ["nord", "imperial", "altmer", "dragonborn", "daedra", "aedra"]:
+                        with Grid(classes="race-grid race-grid-3"):
+                            for race_key in [
+                                "nord", "imperial", "altmer",
+                                "dragonborn", "daedra", "aedra",
+                            ]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # Mamba tab (Dwemer)
-                with TabPane("⚙️ Mamba/SSM", id="tab-mamba"):
+                with TabPane("⚙ Mamba/SSM", id="tab-mamba"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-3"):
+                        with Grid(classes="race-grid race-grid-3"):
                             for race_key in ["dwemer", "dwemer_centurion", "dwemer_numidium"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
-                # Linear Attention tab (Argonian) - Enhanced with Veezara
-                with TabPane("🌊 GatedDeltaNet", id="tab-linear"):
+                # Linear Attention tab (Argonian)
+                with TabPane("🜄 GatedDeltaNet", id="tab-linear"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-3"):
-                            for race_key in ["argonian", "argonian_shadowscale", "argonian_veezara"]:
+                        with Grid(classes="race-grid race-grid-3"):
+                            for race_key in [
+                                "argonian", "argonian_shadowscale", "argonian_veezara",
+                            ]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # Hybrid tab (Falmer)
-                with TabPane("🔀 Hybrid", id="tab-hybrid"):
+                with TabPane("⚯ Hybrid", id="tab-hybrid"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-2"):
+                        with Grid(classes="race-grid race-grid-2"):
                             for race_key in ["falmer", "falmer_warmonger"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # MoE tab (Khajiit)
-                with TabPane("👥 MoE", id="tab-moe"):
+                with TabPane("⚜ MoE", id="tab-moe"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-2"):
+                        with Grid(classes="race-grid race-grid-2"):
                             for race_key in ["khajiit", "khajiit_mane"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # Normalized + Custom tab
-                with TabPane("⚖️ nGPT/Custom", id="tab-ngpt"):
+                with TabPane("✦ nGPT / Custom", id="tab-ngpt"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-2"):
+                        with Grid(classes="race-grid race-grid-2"):
                             yield RaceCard("bosmer", PRESETS["bosmer"])
                             yield RaceCard("custom", PRESETS["custom"])
 
@@ -349,8 +353,9 @@ class RaceSelectScreen(Screen):
                 with Vertical(id="race-lore-panel"):
                     yield Static("", id="race-lore-title")
                     yield Static("", id="race-lore-model")
+                    yield Static("[#5a4a32]· · · · · · · · · · · · · · · ·[/]", classes="separator", markup=True)
                     yield Static("", id="race-lore-text")
-                    yield Static("[#5a4a32]─── Racial Bonuses ───[/]", id="race-bonuses-label", markup=True)
+                    yield Static("[#c9a959]◆ Racial Bonuses ◆[/]", id="race-bonuses-label", markup=True)
                     yield Static("", id="race-bonuses")
 
         yield Footer()
@@ -442,6 +447,10 @@ class RaceSelectScreen(Screen):
     def action_tab_moe(self) -> None:
         tabs = self.query_one(TabbedContent)
         tabs.active = "tab-moe"
+
+    def action_tab_ngpt(self) -> None:
+        tabs = self.query_one(TabbedContent)
+        tabs.active = "tab-ngpt"
 
     def _select_current_race(self) -> None:
         """Load the selected race and continue to attributes."""

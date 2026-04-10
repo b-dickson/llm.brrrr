@@ -33,25 +33,24 @@ class StatBar(Static):
         self.color = color
 
     def render(self) -> str:
-        """Render the stat bar."""
+        """Render the stat bar in the gold-leaf palette."""
         pct = min(self.value / self.max_val, 1.0) if self.max_val > 0 else 0
         bar_width = 12
-        filled = int(pct * bar_width)
+        filled = int(round(pct * bar_width))
         empty = bar_width - filled
 
-        # Color gradient based on fill
-        if pct < 0.3:
-            bar_color = "#6b8e23"  # Green (low)
-        elif pct < 0.6:
-            bar_color = "#c9a959"  # Gold (medium)
+        # Quiet gold gradient — same logic as StatSlider for visual coherence.
+        if pct < 0.2:
+            bar_color = "#8a6f2c"
+        elif pct < 0.55:
+            bar_color = "#c9a959"
         elif pct < 0.85:
-            bar_color = "#ff6b35"  # Orange (high)
+            bar_color = "#e8d9a0"
         else:
-            bar_color = "#8b0000"  # Red (very high)
+            bar_color = "#ffd266"
 
-        bar = f"[{bar_color}]{'█' * filled}[/][#3d2e1f]{'░' * empty}[/]"
+        bar = f"[{bar_color}]{'█' * filled}[/][#26200f]{'░' * empty}[/]"
 
-        # Format value
         if self.value >= 1_000_000_000:
             val_str = f"{self.value / 1_000_000_000:.1f}B"
         elif self.value >= 1_000_000:
@@ -71,7 +70,7 @@ class CharacterSheet(Vertical):
     CharacterSheet {
         width: 36;
         height: auto;
-        background: #2a1f14;
+        background: #1c160e;
         border: heavy #5a4a32;
         padding: 1;
     }
@@ -81,7 +80,7 @@ class CharacterSheet(Vertical):
     }
 
     .sheet-header {
-        color: #c9a959;
+        color: #ffd266;
         text-style: bold;
         text-align: center;
         width: 100%;

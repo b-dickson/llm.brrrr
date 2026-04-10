@@ -66,8 +66,12 @@ class NormType(Enum):
 
 
 class PositionEncoding(Enum):
-    """Positional encoding type."""
-    LEARNED = "learned"
+    """Positional encoding type.
+
+    olmo-core 2.5.0 has no learned-positional-embedding implementation, so
+    we don't expose one — every transformer-style model uses some flavor of
+    RoPE, and recurrent mixers (Mamba, GatedDeltaNet) use NONE.
+    """
     ROPE = "rope"
     FUSED_ROPE = "fused_rope"         # OLMo fused RoPE
     COMPLEX_ROPE = "complex_rope"     # Complex number RoPE
@@ -145,7 +149,7 @@ class ModelConfig:
     mlp_type: MLPType = MLPType.STANDARD
     block_type: BlockType = BlockType.PRE_NORM
     norm_type: NormType = NormType.LAYER_NORM
-    position_encoding: PositionEncoding = PositionEncoding.LEARNED
+    position_encoding: PositionEncoding = PositionEncoding.ROPE
 
     # === MLP Specifics ===
     mlp_ratio: float = 4.0
@@ -238,7 +242,9 @@ class ModelConfig:
         """Calculate total parameter count."""
         # Embedding params
         embed_params = self.vocab_size * self.n_embd
-        pos_params = self.seq_length * self.n_embd if self.position_encoding == PositionEncoding.LEARNED else 0
+        # No learned positional embeddings supported — RoPE/none have zero
+        # positional parameters of their own.
+        pos_params = 0
 
         # Per-layer params depend on architecture
         if self.is_mamba:
@@ -413,7 +419,19 @@ class ModelConfig:
                 issues.append("NormalizedAttention should not use additional QK normalization")
 
         if self.is_hybrid and not self.fla_layers:
-            issues.append("Hybrid mode requires fla_layers to specify which layers use FLA")
+            issues.append("Hybrid mode requires fla_layers to specify which layers use GatedDeltaNet")
+
+        if self.is_hybrid and self.fla_layers is not None:
+            bad = [i for i in self.fla_layers if not 0 <= i < self.n_layers]
+            if bad:
+                issues.append(
+                    f"fla_layers contains out-of-range indices for n_layers={self.n_layers}: {bad}"
+                )
+
+        if self.is_hybrid and self.is_moe:
+            issues.append(
+                "Hybrid + MoE is not supported by the generator yet — pick one"
+            )
 
         return issues
 

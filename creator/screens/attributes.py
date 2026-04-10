@@ -13,9 +13,8 @@ from textual.containers import Horizontal, Vertical, Container, ScrollableContai
 from textual.binding import Binding
 
 from ..widgets.stat_slider import StatSlider
-from ..widgets.parchment import Parchment, DragonBorder
+from ..widgets.parchment import DragonBorder
 from ..widgets.character_sheet import CharacterSheet, MiniSheet
-from ..widgets.character_portrait import get_mini_portrait
 from ..config import (
     SequenceModelType,
     AttentionType,
@@ -28,16 +27,13 @@ from ..config import (
 
 
 ATTRIBUTES_HEADER = r"""[bold #c9a959]
-    ╔═══════════════════════════════════════════════════════════════════╗
-    ║   ▄▄▄     ▄▄▄█████▓▄▄▄█████▓ ██▀███   ██▓ ▄▄▄▄    █    ██ ▄▄▄█████▓║
-    ║  ▒████▄   ▓  ██▒ ▓▒▓  ██▒ ▓▒▓██ ▒ ██▒▓██▒▓█████▄  ██  ▓██▒▓  ██▒ ▓▒║
-    ║  ▒██  ▀█▄ ▒ ▓██░ ▒░▒ ▓██░ ▒░▓██ ░▄█ ▒▒██▒▒██▒ ▄██▓██  ▒██░▒ ▓██░ ▒░║
-    ║  ░██▄▄▄▄██░ ▓██▓ ░ ░ ▓██▓ ░ ▒██▀▀█▄  ░██░▒██░█▀  ▓▓█  ░██░░ ▓██▓ ░ ║
-    ║   ▓█   ▓██▒ ▒██▒ ░   ▒██▒ ░ ░██▓ ▒██▒░██░░▓█  ▀█▓▒▒█████▓   ▒██▒ ░ ║
-    ║   ▒▒   ▓▒█░ ▒ ░░     ▒ ░░   ░ ▒▓ ░▒▓░░▓  ░▒▓███▀▒░▒▓▒ ▒ ▒   ▒ ░░   ║
-    ╚═══════════════════════════════════════════════════════════════════╝
-[/]
-[#7a6e5a]                    ━━━ Forge Your Architecture ━━━[/]"""
+   ╔════════════════════════════════════════════════════════════════════════════╗
+   ║                                                                            ║
+   ║      ⚔  F O R G E    Y O U R    A T T R I B U T E S  ⚔                     ║
+   ║                                                                            ║
+   ║      [#8b7355]Set the dimensions of your soul. The forge awaits.[/#8b7355]                  ║
+   ║                                                                            ║
+   ╚════════════════════════════════════════════════════════════════════════════╝[/]"""
 
 
 class AttributesScreen(Screen):
@@ -312,7 +308,7 @@ class AttributesScreen(Screen):
                         with Collapsible(title="🌊 Hist Connection (GatedDeltaNet)", collapsed=not is_gdn):
                             with Vertical(classes="gdn-section"):
                                 yield Static(
-                                    "[#228b22]Native SequenceMixer - olmo-core v2.4.0+[/]",
+                                    "[#228b22]Native SequenceMixer · olmo-core v2.5.0+[/]",
                                     markup=True,
                                 )
                                 yield StatSlider(
@@ -379,7 +375,6 @@ class AttributesScreen(Screen):
                             with Horizontal(classes="arch-group"):
                                 yield Label("Position:", classes="arch-label")
                                 with RadioSet(id="radio-position"):
-                                    yield RadioButton("Learned", value=config.position_encoding == PositionEncoding.LEARNED, id="pos-learned")
                                     yield RadioButton("RoPE", value=config.position_encoding == PositionEncoding.ROPE, id="pos-rope")
                                     yield RadioButton("Fused RoPE", value=config.position_encoding == PositionEncoding.FUSED_ROPE, id="pos-fused")
                                     yield RadioButton("None", value=config.position_encoding == PositionEncoding.NONE, id="pos-none")
@@ -493,9 +488,7 @@ class AttributesScreen(Screen):
                 config.norm_type = NormType.L2_NORM
 
         elif radio_id == "radio-position":
-            if pressed_id == "pos-learned":
-                config.position_encoding = PositionEncoding.LEARNED
-            elif pressed_id == "pos-rope":
+            if pressed_id == "pos-rope":
                 config.position_encoding = PositionEncoding.ROPE
             elif pressed_id == "pos-fused":
                 config.position_encoding = PositionEncoding.FUSED_ROPE
