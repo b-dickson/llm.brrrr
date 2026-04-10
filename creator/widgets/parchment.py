@@ -1,58 +1,23 @@
 """
-Parchment - Aged parchment-style container widget.
-Enhanced with deeper atmospheric tones.
+DragonBorder — heavy bordered container with a gold title bar.
+
+Used by every screen as the standard panel-with-title container. The old
+``Parchment`` class lived here too but it had a broken ``compose()`` that
+silently dropped its children, so it was deleted. If you want a panel, use
+``DragonBorder``.
 """
 
+from __future__ import annotations
+
 from textual.containers import Container
-from textual.widgets import Static
-
-
-class Parchment(Container):
-    """A styled container that looks like aged parchment with dragon borders."""
-
-    DEFAULT_CSS = """
-    Parchment {
-        background: #231b13;
-        border: tall #5a4a32;
-        padding: 1 2;
-        margin: 1;
-    }
-
-    Parchment:focus-within {
-        border: tall #8b7355;
-    }
-
-    Parchment > .parchment-title {
-        color: #c9a959;
-        text-style: bold;
-        text-align: center;
-        padding-bottom: 1;
-        width: 100%;
-    }
-    """
-
-    def __init__(
-        self,
-        *children,
-        title: str = "",
-        id: str | None = None,
-        classes: str | None = None,
-    ) -> None:
-        super().__init__(*children, id=id, classes=classes)
-        self._title = title
-
-    def compose(self):
-        """Compose the parchment with optional title."""
-        if self._title:
-            yield Static(self._title, classes="parchment-title")
 
 
 class DragonBorder(Container):
-    """A container with heavy dragon-style borders."""
+    """A container with heavy dragon-style borders and a gold title."""
 
     DEFAULT_CSS = """
     DragonBorder {
-        background: #231b13;
+        background: #1c160e;
         border: heavy #5a4a32;
         border-title-color: #c9a959;
         border-title-style: bold;

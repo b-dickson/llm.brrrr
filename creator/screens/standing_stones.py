@@ -6,6 +6,8 @@ Warrior (optimization), Mage (regularization), Thief (efficiency) options.
 don't - you're still using O(n^2) attention."
 """
 
+from math import log10
+
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Static, Footer, Checkbox, RadioButton, RadioSet, Input, Label
@@ -21,6 +23,14 @@ from ..config import (
     RoPEScaling,
     MoEGatingFunction,
 )
+
+
+def _lr_exponent(learning_rate: float) -> int:
+    """Convert a learning rate like ``3e-4`` into the slider's integer
+    exponent (``4``). Falls back to ``4`` for non-positive rates."""
+    if learning_rate <= 0:
+        return 4
+    return max(1, min(6, int(round(-log10(learning_rate)))))
 
 
 STONES_HEADER = r"""[bold #c9a959]
@@ -180,7 +190,7 @@ class StandingStonesScreen(Screen):
                         "Learning Rate (1e-x)",
                         min_val=1,
                         max_val=6,
-                        initial=4,  # 1e-4
+                        initial=_lr_exponent(config.learning_rate),
                         step=1,
                         id="slider-lr",
                     )
@@ -296,17 +306,6 @@ class StandingStonesScreen(Screen):
 
         yield Footer()
 
-    def on_mount(self) -> None:
-        """Set up initial state."""
-        # Set learning rate slider based on config
-        config = self.app.config
-        lr_exp = -int(round(log10(config.learning_rate))) if config.learning_rate > 0 else 4
-        try:
-            slider = self.query_one("#slider-lr", StatSlider)
-            slider.set_value(lr_exp)
-        except Exception:
-            pass
-
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
         """Handle radio button changes."""
         config = self.app.config
@@ -398,9 +397,3 @@ class StandingStonesScreen(Screen):
     def action_back(self) -> None:
         """Go back to attributes screen."""
         self.app.pop_screen()
-
-
-def log10(x):
-    """Simple log10 for learning rate calculation."""
-    from math import log10 as _log10
-    return _log10(x) if x > 0 else 0

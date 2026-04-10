@@ -97,10 +97,13 @@ _ROPE_SCALING_BUILDER = {
 
 
 def _safe_filename(name: str) -> str:
-    """Sanitize a model name into a usable file/identifier stem."""
-    # Strip everything that isn't safe for filenames or Python identifiers,
-    # collapse runs of underscores, and lowercase. Falls back to ``model``
-    # if the user gave us an empty string.
+    """Sanitize a model name into a valid file stem and Python identifier.
+
+    The result is also used inside the generated Python files (as part of
+    function names and ``from {stem}_config import …`` statements), so it
+    must satisfy two stricter rules than a plain filename: it cannot start
+    with a digit, and it must contain only ``[a-z0-9_]``.
+    """
     cleaned = []
     for ch in name.lower():
         if ch.isalnum():
@@ -110,7 +113,13 @@ def _safe_filename(name: str) -> str:
     stem = "".join(cleaned).strip("_")
     while "__" in stem:
         stem = stem.replace("__", "_")
-    return stem or "model"
+    if not stem:
+        return "model"
+    if stem[0].isdigit():
+        # Python identifiers can't start with a digit; prefix to keep the
+        # rest of the user's chosen name visible.
+        stem = f"m_{stem}"
+    return stem
 
 
 def _ensure_multiple_of(value: int, multiple: int = 256) -> int:
@@ -253,11 +262,10 @@ def _imports_for(config: ModelConfig, *, hybrid: bool = False) -> str:
             ")"
         )
 
-    # We deliberately do NOT import ``ActivationFunction``: it was added to
-    # ``feed_forward`` in olmo-core 2.5.0, but the default of SiLU/SwiGLU
-    # already covers every preset. Omitting both the import and the
-    # ``activation=…`` field keeps generated configs runnable against
-    # PyPI's older 2.4.0 release as well as the newer 2.5.0 GitHub source.
+    # We deliberately do NOT import ``ActivationFunction``. Every preset uses
+    # SiLU (the FeedForwardConfig default), so naming the activation field
+    # explicitly would just be noise — and skipping it keeps the import block
+    # tighter.
     imports.extend(
         [
             "from olmo_core.nn.feed_forward import FeedForwardConfig, FeedForwardType",
@@ -473,8 +481,11 @@ def generate_hybrid_config(config: ModelConfig) -> str:
     builder = f"build_{stem}_config"
     hidden_size = _hidden_size_for(config)
     norm_name = _LAYER_NORM_NAME.get(config.norm_type, "LayerNormType.rms")
+    block_name = _BLOCK_TYPE_NAME.get(config.block_type, "TransformerBlockType.default")
 
-    fla_layers = sorted(set(config.fla_layers or list(range(0, config.n_layers, 2))))
+    # ``ModelConfig.validate()`` already requires hybrid configs to specify a
+    # non-empty fla_layers list, so by the time we get here we trust it.
+    fla_layers = sorted({i for i in (config.fla_layers or []) if 0 <= i < config.n_layers})
     layer_keys = [
         '"gdn"' if i in fla_layers else '"attn"' for i in range(config.n_layers)
     ]
@@ -508,14 +519,14 @@ def generate_hybrid_config(config: ModelConfig) -> str:
         f"    )\n"
         f"\n"
         f"    attention_block = TransformerBlockConfig(\n"
-        f"        name=TransformerBlockType.default,\n"
+        f"        name={block_name},\n"
         f"        sequence_mixer={attention_mixer},\n"
         f"        feed_forward=feed_forward,\n"
         f"        layer_norm=layer_norm,\n"
         f"    )\n"
         f"\n"
         f"    gdn_block = TransformerBlockConfig(\n"
-        f"        name=TransformerBlockType.default,\n"
+        f"        name={block_name},\n"
         f"        sequence_mixer={gdn_mixer},\n"
         f"        feed_forward=feed_forward,\n"
         f"        layer_norm=layer_norm,\n"

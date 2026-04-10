@@ -16,7 +16,11 @@ from textual.binding import Binding
 
 from ..widgets.parchment import DragonBorder
 from ..config import SequenceModelType
-from ..generator import generate_model_code, generate_full_package
+from ..generator import (
+    _safe_filename,
+    generate_full_package,
+    generate_model_code,
+)
 
 
 SUMMARY_HEADER = r"""[bold #c9a959]
@@ -307,7 +311,7 @@ class SummaryScreen(Screen):
 
                 yield Static("", id="generation-status")
                 yield Static(
-                    '"Your creation awaits, Dragonborn. OLMo-core v2.4.0 and the SequenceMixer API stand ready."',
+                    '"Your creation awaits, Dragonborn. OLMo-core v2.5.0 and the SequenceMixer API stand ready."',
                     id="dramatic-message",
                 )
 
@@ -351,9 +355,10 @@ class SummaryScreen(Screen):
         output_dir = Path("models")
         output_dir.mkdir(exist_ok=True)
 
-        # Save file
-        model_name = config.name.lower().replace(" ", "_").replace("-", "_")
-        filename = f"{model_name}_config.py"
+        # Save file. We share `_safe_filename` with the generator so the
+        # filename matches the `build_<stem>_config` function emitted inside.
+        stem = _safe_filename(config.name)
+        filename = f"{stem}_config.py"
         output_path = output_dir / filename
 
         try:
@@ -382,9 +387,9 @@ class SummaryScreen(Screen):
         # Generate full package
         package = generate_full_package(config)
 
-        # Create output directory
-        model_name = config.name.lower().replace(" ", "_").replace("-", "_")
-        output_dir = Path("models") / model_name
+        # Create output directory using the same sanitizer as the generator
+        # so the directory name matches the file stems inside it.
+        output_dir = Path("models") / _safe_filename(config.name)
         output_dir.mkdir(parents=True, exist_ok=True)
 
         try:

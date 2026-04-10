@@ -136,6 +136,7 @@ class RaceSelectScreen(Screen):
         Binding("3", "tab_hybrid", "Hybrid", show=False),
         Binding("4", "tab_linear", "Linear", show=False),
         Binding("5", "tab_moe", "MoE", show=False),
+        Binding("6", "tab_ngpt", "nGPT", show=False),
     ]
 
     DEFAULT_CSS = """
@@ -172,11 +173,10 @@ class RaceSelectScreen(Screen):
         background: #15100a;
     }
 
-    #race-grid {
+    .race-grid {
         width: 100%;
         height: auto;
         align: center top;
-        grid-size: 3;
         grid-gutter: 1 1;
         padding: 1 2;
     }
@@ -302,7 +302,7 @@ class RaceSelectScreen(Screen):
                 # Transformer tab (Men, Elves, Divine)
                 with TabPane("⚡ Transformer", id="tab-transformer"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-3"):
+                        with Grid(classes="race-grid race-grid-3"):
                             for race_key in [
                                 "nord", "imperial", "altmer",
                                 "dragonborn", "daedra", "aedra",
@@ -312,14 +312,14 @@ class RaceSelectScreen(Screen):
                 # Mamba tab (Dwemer)
                 with TabPane("⚙ Mamba/SSM", id="tab-mamba"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-3"):
+                        with Grid(classes="race-grid race-grid-3"):
                             for race_key in ["dwemer", "dwemer_centurion", "dwemer_numidium"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # Linear Attention tab (Argonian)
                 with TabPane("🜄 GatedDeltaNet", id="tab-linear"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-3"):
+                        with Grid(classes="race-grid race-grid-3"):
                             for race_key in [
                                 "argonian", "argonian_shadowscale", "argonian_veezara",
                             ]:
@@ -328,21 +328,21 @@ class RaceSelectScreen(Screen):
                 # Hybrid tab (Falmer)
                 with TabPane("⚯ Hybrid", id="tab-hybrid"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-2"):
+                        with Grid(classes="race-grid race-grid-2"):
                             for race_key in ["falmer", "falmer_warmonger"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # MoE tab (Khajiit)
                 with TabPane("⚜ MoE", id="tab-moe"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-2"):
+                        with Grid(classes="race-grid race-grid-2"):
                             for race_key in ["khajiit", "khajiit_mane"]:
                                 yield RaceCard(race_key, PRESETS[race_key])
 
                 # Normalized + Custom tab
                 with TabPane("✦ nGPT / Custom", id="tab-ngpt"):
                     with ScrollableContainer():
-                        with Grid(id="race-grid", classes="race-grid-2"):
+                        with Grid(classes="race-grid race-grid-2"):
                             yield RaceCard("bosmer", PRESETS["bosmer"])
                             yield RaceCard("custom", PRESETS["custom"])
 
@@ -447,6 +447,10 @@ class RaceSelectScreen(Screen):
     def action_tab_moe(self) -> None:
         tabs = self.query_one(TabbedContent)
         tabs.active = "tab-moe"
+
+    def action_tab_ngpt(self) -> None:
+        tabs = self.query_one(TabbedContent)
+        tabs.active = "tab-ngpt"
 
     def _select_current_race(self) -> None:
         """Load the selected race and continue to attributes."""
